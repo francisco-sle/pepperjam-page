@@ -51,17 +51,65 @@
   display: none;
 }
 
-/* one sheet of paper peeking underneath */
-.book__stack {
+/* ---------- Page stacks ----------
+   The sheets under each visible page. Each lies still at its own place
+   (Book.jsx sets it): the deeper in the pile, the further down and out, so
+   their edges show along the outer side and the bottom. */
+
+.stack {
   position: absolute;
-  inset: 3px -6px -7px -6px;
-  background: var(--paper-2);
-  border: var(--line);
-  border-radius: 12px;
+  z-index: 0; /* keep the sheets' own z-indexes in here, under the pages */
+  top: 0;
+  bottom: 0;
+  pointer-events: none;
 }
 
-.book--single .book__stack {
-  inset: 3px -6px -7px 0;
+.stack--left {
+  left: 0;
+  width: 50%;
+}
+
+.stack--right {
+  left: 50%;
+  width: 50%;
+}
+
+.book--single .stack {
+  left: 0;
+  width: 100%;
+}
+
+.stack__sheet {
+  position: absolute;
+  inset: 0;
+  border: 2px solid var(--ink);
+  box-shadow: 0 2px 0 rgb(107 74 54 / 0.14);
+}
+
+.stack--left .stack__sheet {
+  border-radius: 14px 3px 3px 14px;
+}
+
+.stack--right .stack__sheet {
+  border-radius: 3px 14px 14px 3px;
+}
+
+.book--single .stack__sheet {
+  border-width: 1.25px;
+  border-radius: 6px 14px 14px 6px;
+}
+
+/* the deep fold of the binding, seen between the two piles while a sheet
+   crosses over from one to the other */
+.book__gutter {
+  position: absolute;
+  top: 2%;
+  bottom: 2%;
+  left: 50%;
+  width: 36px;
+  translate: -50% 0;
+  background: color-mix(in srgb, var(--paper-2), var(--ink) 22%);
+  pointer-events: none;
 }
 
 .book__pages {
@@ -100,13 +148,19 @@
   overflow: hidden;
   container-type: inline-size;
   background-color: var(--paper);
-  background-image: radial-gradient(circle, var(--paper-line) 1.2px, transparent 1.6px);
-  background-size: 20px 20px;
-  background-position: 10px 10px;
+  background-image:
+    /* paper grain: an image rather than a CSS filter, so turning stays cheap */
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .42 0 0 0 0 .29 0 0 0 0 .21 .32 0 0 0 -.1'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E"),
+    /* slightly warmer, older paper towards the edges */
+    radial-gradient(ellipse 75% 70% at 50% 45%, transparent 55%, rgb(201 138 76 / 0.09)),
+    radial-gradient(circle, var(--paper-line) 1.2px, transparent 1.6px);
+  background-size: 180px 180px, 100% 100%, 20px 20px;
+  background-position: 0 0, 0 0, 10px 10px;
   border: var(--line);
 }
 
-/* gutter shading */
+/* gutter: the paper curving down into the binding, a soft highlight where
+   it flattens out, and a faint shade along the outer edge */
 .page::before {
   content: '';
   position: absolute;
@@ -131,7 +185,9 @@
 }
 
 .page--left::before {
-  background: linear-gradient(to left, rgb(107 74 54 / 0.16), transparent 10%);
+  background:
+    linear-gradient(to left, rgb(107 74 54 / 0.26), rgb(107 74 54 / 0.1) 2.5%, rgb(255 255 255 / 0.4) 6%, transparent 13%),
+    linear-gradient(to right, rgb(107 74 54 / 0.07), transparent 2.5%);
 }
 
 .page--right {
@@ -140,7 +196,9 @@
 }
 
 .page--right::before {
-  background: linear-gradient(to right, rgb(107 74 54 / 0.16), transparent 10%);
+  background:
+    linear-gradient(to right, rgb(107 74 54 / 0.26), rgb(107 74 54 / 0.1) 2.5%, rgb(255 255 255 / 0.4) 6%, transparent 13%),
+    linear-gradient(to left, rgb(107 74 54 / 0.07), transparent 2.5%);
 }
 
 .page--single {
@@ -148,7 +206,49 @@
 }
 
 .page--single::before {
-  background: linear-gradient(to right, rgb(107 74 54 / 0.1), transparent 8%);
+  background:
+    linear-gradient(to right, rgb(107 74 54 / 0.16), rgb(255 255 255 / 0.35) 7%, transparent 12%),
+    linear-gradient(to left, rgb(107 74 54 / 0.07), transparent 2.5%);
+}
+
+/* Punched holes for the spiral, lined up with the rings in .spiral:
+   10/11 rings spread over 95% of the height, the wire enters 60% down a ring. */
+.page__holes {
+  --ring-h: 19.17px; /* 46px ring x 20/48 */
+  --hole-x: 15.3px; /* from the spine */
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.page--single .page__holes {
+  --ring-h: 15px; /* 36px ring */
+  --hole-x: 14px;
+}
+
+.page__hole {
+  position: absolute;
+  top: calc(2.5% + (95% - var(--ring-h)) * var(--i) / (var(--rings) - 1) + var(--ring-h) * 0.6);
+  width: 10px;
+  height: 10px;
+  translate: -50% -50%;
+  border-radius: 50%;
+  background: #b98a63;
+  border: 1.5px solid var(--ink);
+  /* the cut edge of the paper shows as a lighter rim at the bottom */
+  box-shadow:
+    inset 0 2px 0 rgb(107 74 54 / 0.45),
+    0 1px 0 rgb(255 255 255 / 0.7);
+}
+
+.page--left .page__hole {
+  left: calc(100% - var(--hole-x));
+}
+
+.page--right .page__hole,
+.page--single .page__hole {
+  left: var(--hole-x);
 }
 
 .page__content {
@@ -233,6 +333,59 @@
 .pf-host .stf__item {
   will-change: transform;
   contain: strict;
+}
+
+/* The turning sheet (its front and back page) and PageFlip's shadows for it
+   travel from the top of one pile to the top of the other as --turn goes
+   0 → 1 (see Book.jsx). Each resting page's own place is set by Book.jsx. */
+@property --turn {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 0;
+}
+
+.pf-host .pf-page.is-turning,
+.book__pages.is-turning .stf__outerShadow,
+.book__pages.is-turning .stf__innerShadow,
+.book__pages.is-turning .stf__hardShadow,
+.book__pages.is-turning .stf__hardInnerShadow {
+  translate:
+    calc(var(--turn-x0) + (var(--turn-x1) - var(--turn-x0)) * var(--turn))
+    calc(var(--turn-y0) + (var(--turn-y1) - var(--turn-y0)) * var(--turn));
+}
+
+/* The shadow the turning sheet casts, also cut to the page below it by
+   this layer (see turnLayers.js). */
+.pf-shadow-clip {
+  position: absolute;
+  inset: 0;
+  z-index: 11;
+  pointer-events: none;
+}
+
+/* A single page's flap is a copy of the page standing in for its back,
+   which is blank paper (see turnLayers.js). */
+.pf-page.pf-page-back .page__content,
+.pf-page.pf-page-back .page__holes,
+.pf-page.pf-page-back .page__num {
+  visibility: hidden;
+}
+
+/* While a page turns, the page below is drawn whole underneath and the front
+   on top of it, cut down to the part still lying flat (see turnLayers.js).
+   Both stay under the spiral (z 5) and the flap (z 6). */
+.pf-host .pf-page.pf-turn-under {
+  z-index: 3 !important;
+  clip-path: none !important;
+}
+
+.pf-host .pf-page.pf-turn-front {
+  z-index: 4 !important;
+}
+
+/* a single page's spiral steps over to the next page */
+.book--single .pf-rings {
+  transition: translate 0.4s var(--soft);
 }
 
 /* ---------- Cursors (see cursors.js) ---------- */

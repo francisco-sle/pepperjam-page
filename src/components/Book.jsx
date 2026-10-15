@@ -3,11 +3,13 @@ import { createPortal } from 'react-dom'
 import { useReducedMotion } from 'motion/react'
 import { PageFlip } from 'page-flip'
 import { attachPageInput } from './pageInput'
+import { trackTurnLayers } from './turnLayers'
 import { playFlip } from '../hooks/sound'
 import './Book.css'
 
 const FLIP_MS = 850 // a normal page turn
 const RIFFLE_MS = 420 // each turn while jumping several spreads at once
+const RELEASE_MS = 380 // a let-go drag settling onto one pile or the other
 
 /**
  * The sketchbook, powered by StPageFlip (https://github.com/Nodlik/StPageFlip):
@@ -18,6 +20,13 @@ const RIFFLE_MS = 420 // each turn while jumping several spreads at once
  * PageFlip owns those divs (it moves and clips them while turning), React only
  * owns what's inside, so both can work without stepping on each other.
  *
+ * Every sheet has its own fixed place in the piles on either side of the
+ * spine: the fewer sheets under it, the further down and out it lies. That
+ * holds for the visible pages too (PageFlip lays them out, a CSS `translate`
+ * puts each one at its place), so turning never moves the piles: lifting a
+ * page uncovers the next one where it always lay, and the turning sheet
+ * travels from the top of one pile to the top of the other.
+ *
  * pages: [{ id, section, render(side) }]
  * page:  index of the page that should be visible (the left one in spread mode)
  */
@@ -25,9 +34,9 @@ export default function Book({ pages, page, single, onNavigate, children }) {
   const areaRef = useRef(null)
   const [size, setSize] = useState(null)
   const [hosts] = useState(() =>
-    pages.map(() => {
+    pages.map((_, i) => {
       const el = document.createElement('div')
-      el.className = 'pf-page'
+      el.className = `pf-page pf-page--${i}`
       return el
     }),
   )
@@ -49,6 +58,90 @@ export default function Book({ pages, page, single, onNavigate, children }) {
   reduceRef.current = reduce
 
   const spreadOf = (p) => (single ? p : Math.floor(p / 2))
+  const lastSpread = single ? pages.length - 1 : Math.ceil(pages.length / 2) - 1
+  const rings = single ? 11 : 10
+
+  // Where sheets lie. `depth` is how far a sheet is from the top of a full
+  // pile; deeper sheets lie lower and further out (dir: -1 left, 1 right).
+  const STEP = single ? { x: 1.9, y: 2.7 } : { x: 3.5, y: 4.5 }
+  const mid = lastSpread / 2
+  const placeAt = (depth, dir) => ({ x: dir * (depth - mid) * STEP.x, y: (depth - mid) * STEP.y })
+  // page i: right pages count down from the first spread, left pages up to the last
+  const placeOf = (i) =>
+    single ? placeAt(i, 1) : i % 2 ? placeAt((i - 1) / 2, 1) : placeAt(lastSpread - i / 2, -1)
+  const [placeRules] = useState(() =>
+    hosts
+      .map((_, i) => {
+        const { x, y } = placeOf(i)
+        return `.pf-host .pf-page--${i}{translate:${x}px ${y}px}`
+      })
+      .join('\n'),
+  )
+
+  // The spread each pile is drawn for. A turn takes the page off its pile right
+  // away and only adds it to the other pile once it lands. (A single page
+  // swings back around the spiral, so it only has a pile on the right.)
+  const [stacks, setStacks] = useState(() => ({ left: spreadOf(page), right: spreadOf(page) }))
+
+  // The turning sheet is two PageFlip pages (its front and back), each placed
+  // on its own pile. From the moment it's touched (even a corner lifted by
+  // hovering) both are drawn together, along with PageFlip's shadows, and as
+  // it turns they move from the front's place to the back's, driven by --turn
+  // (0 → 1) on the page area. A single page's flap is a copy of the page
+  // itself, so there only the shadows need moving to its place.
+  const turning = useRef(null)
+  const setTurn = (t, ms = 0) => {
+    const el = areaRef.current
+    if (!el) return
+    el.style.transition = ms ? `--turn ${ms}ms ease-in-out` : 'none'
+    el.style.setProperty('--turn', t)
+  }
+  const beginTurn = (dir) => {
+    const s = spreadOf(current.current)
+    const sheet = single ? [dir > 0 ? s : s - 1] : dir > 0 ? [2 * s + 1, 2 * s + 2] : [2 * s, 2 * s - 1]
+    if (sheet.some((i) => !hosts[i])) return
+    // already following this sheet (say a hovered corner that's now being turned)
+    if (turning.current?.join() === sheet.join()) return
+    endTurn()
+    const from = placeOf(sheet[0])
+    const to = placeOf(sheet[sheet.length - 1])
+    const el = areaRef.current
+    el.style.setProperty('--turn-x0', `${from.x}px`)
+    el.style.setProperty('--turn-y0', `${from.y}px`)
+    el.style.setProperty('--turn-x1', `${to.x}px`)
+    el.style.setProperty('--turn-y1', `${to.y}px`)
+    setTurn(0)
+    getComputedStyle(el).getPropertyValue('--turn') // commit 0, so the next change animates
+    el.classList.add('is-turning')
+    if (!single) sheet.forEach((i) => hosts[i].classList.add('is-turning'))
+    turning.current = sheet
+  }
+  const endTurn = () => {
+    turning.current?.forEach((i) => hosts[i].classList.remove('is-turning'))
+    turning.current = null
+    areaRef.current?.classList.remove('is-turning')
+    setTurn(0)
+  }
+
+  // The spiral follows the visible spread (its pages shift sideways a little
+  // as the piles change), sliding along with a turning sheet.
+  const placeRings = (s) => {
+    ringHost.style.translate = `calc(${placeAt(s, 1).x}px + (var(--turn-x1, 0px) - var(--turn-x0, 0px)) * var(--turn, 0)) 0`
+  }
+
+  const lift = (dir) => {
+    if (single && dir < 0) return
+    beginTurn(dir)
+    setStacks((s) => (dir > 0 ? { ...s, right: s.right + 1 } : { ...s, left: s.left - 1 }))
+    // a single page is gone once lifted: the spiral moves to the one under it
+    if (single) placeRings(spreadOf(current.current) + 1)
+  }
+  const settle = () => {
+    endTurn()
+    const at = spreadOf(current.current)
+    placeRings(at)
+    setStacks((s) => (s.left === at && s.right === at ? s : { left: at, right: at }))
+  }
 
   // Measure the page area (debounced, PageFlip is rebuilt when it changes).
   useLayoutEffect(() => {
@@ -84,6 +177,7 @@ export default function Book({ pages, page, single, onNavigate, children }) {
     if (reduceRef.current) {
       book.turnToPage(target.current)
       current.current = target.current
+      settle()
       return
     }
     const settings = book.getSettings()
@@ -91,9 +185,11 @@ export default function Book({ pages, page, single, onNavigate, children }) {
     // `disableFlipByClick` stops stray clicks on a page from turning it, but in
     // single-page mode it also blocks PageFlip's own flipPrev(), so lift it briefly.
     settings.disableFlipByClick = false
+    lift(to > from ? 1 : -1)
     if (to > from) book.flipNext('bottom')
     else book.flipPrev('bottom')
     settings.disableFlipByClick = true
+    setTurn(1, settings.flippingTime)
   }
 
   // Build PageFlip for the current size.
@@ -135,19 +231,34 @@ export default function Book({ pages, page, single, onNavigate, children }) {
         navRef.current(e.data)
       }
     })
+    const layers = trackTurnLayers(book)
     book.on('changeState', (e) => {
       if (e.data === 'flipping') playFlip()
-      if (e.data === 'read') setTimeout(step, 0)
+      if (e.data === 'read') layers.stop()
+      else {
+        layers.start()
+        // PageFlip has picked which way the page goes by now (0 = forward)
+        beginTurn(book.getRender().direction === 0 ? 1 : -1)
+      }
+      if (e.data === 'read') {
+        // also undoes the lift of a drag the reader let go of halfway
+        settle()
+        setTimeout(step, 0)
+      }
     })
 
     book.loadFromHTML(hosts)
     book.getUI().getDistElement().appendChild(ringHost)
+    placeRings(spreadOf(current.current))
     bookRef.current = book
 
-    const lastSpread = single ? pages.length - 1 : Math.ceil(pages.length / 2) - 1
     inputRef.current = attachPageInput(book, host, {
       spread: () => spreadOf(current.current),
       lastSpread: () => lastSpread,
+      lift,
+      settle,
+      drag: (t) => turning.current && setTurn(t),
+      release: (done) => turning.current && setTurn(done ? 1 : 0, RELEASE_MS),
       turn: (dir) => {
         const s = Math.max(0, Math.min(lastSpread, spreadOf(target.current) + dir))
         navRef.current(single ? s : s * 2)
@@ -155,6 +266,8 @@ export default function Book({ pages, page, single, onNavigate, children }) {
     })
 
     return () => {
+      layers.stop()
+      endTurn()
       inputRef.current?.destroy()
       inputRef.current = null
       bookRef.current = null
@@ -177,14 +290,30 @@ export default function Book({ pages, page, single, onNavigate, children }) {
     <div className={`book ${single ? 'book--single' : 'book--spread'}`}>
       <div className="book__cover" aria-hidden="true" />
       <div className="book__ribbon" aria-hidden="true" />
-      <div className="book__stack" aria-hidden="true" />
+      <style>{placeRules}</style>
+      {!single && (
+        <Stack
+          side="left"
+          sheets={Array.from({ length: lastSpread }, (_, m) => ({
+            depth: lastSpread - m,
+            on: m < stacks.left,
+          }))}
+          placeAt={placeAt}
+        />
+      )}
+      <Stack
+        side="right"
+        sheets={Array.from({ length: lastSpread }, (_, j) => ({ depth: j + 1, on: j + 1 > stacks.right }))}
+        placeAt={placeAt}
+      />
+      {!single && <div className="book__gutter" aria-hidden="true" />}
 
       <div ref={areaRef} className="book__pages" />
-      {createPortal(<Spiral single={single} />, ringHost)}
+      {createPortal(<Spiral rings={rings} />, ringHost)}
 
       {hosts.map((el, i) =>
         createPortal(
-          <PageFrame side={sideOf(i)} number={i + 1}>
+          <PageFrame side={sideOf(i)} number={i + 1} holes={rings} holesY={-placeOf(i).y}>
             {pages[i].render(sideOf(i))}
           </PageFrame>,
           el,
@@ -200,23 +329,58 @@ export default function Book({ pages, page, single, onNavigate, children }) {
   )
 }
 
-export function PageFrame({ side, number, children }) {
+export function PageFrame({ side, number, holes, holesY = 0, children }) {
   return (
-    <div className={`page page--${side}`}>
+    <div className={`page page--${side}`} style={holes ? { '--rings': holes } : undefined}>
+      {holes > 0 && (
+        // the spiral doesn't follow the pages up and down, so neither do the holes
+        <div className="page__holes" style={{ translate: `0 ${holesY}px` }} aria-hidden="true">
+          {Array.from({ length: holes }, (_, i) => (
+            <span key={i} className="page__hole" style={{ '--i': i }} />
+          ))}
+        </div>
+      )}
       <div className="page__content">{children}</div>
       {number && <span className="page__num hand">~ {number} ~</span>}
     </div>
   )
 }
 
-function Spiral({ single }) {
-  const rings = single ? 11 : 10
+/**
+ * The sheets piled under one side's visible page, each lying still at its own
+ * place; a sheet only shows while it's in the pile and not the visible page.
+ */
+function Stack({ side, sheets, placeAt }) {
+  const dir = side === 'left' ? -1 : 1
+  return (
+    <div className={`stack stack--${side}`} aria-hidden="true">
+      {sheets.map(({ depth, on }) => {
+        const { x, y } = placeAt(depth, dir)
+        return (
+          <div
+            key={depth}
+            className="stack__sheet"
+            style={{
+              zIndex: 100 - depth,
+              translate: `${x}px ${y}px`,
+              // sheets further down the pile sit in a little more shadow
+              backgroundColor: `color-mix(in srgb, var(--paper), var(--ink) ${depth * 3}%)`,
+              visibility: on ? 'visible' : 'hidden',
+            }}
+          />
+        )
+      })}
+    </div>
+  )
+}
+
+function Spiral({ rings }) {
   return (
     <div className="spiral" aria-hidden="true">
       {Array.from({ length: rings }, (_, i) => (
         <svg key={i} className="spiral__ring" viewBox="0 0 48 20">
-          <circle cx="8" cy="12" r="3.6" fill="var(--ink)" opacity="0.45" />
-          <circle cx="40" cy="12" r="3.6" fill="var(--ink)" opacity="0.45" />
+          <circle cx="8" cy="12" r="2.6" fill="var(--ink)" opacity="0.75" />
+          <circle cx="40" cy="12" r="2.6" fill="var(--ink)" opacity="0.75" />
           <path d="M8 12 C8 0 40 0 40 12" fill="none" stroke="var(--ink)" strokeWidth="6.5" strokeLinecap="round" />
           <path d="M8 12 C8 0 40 0 40 12" fill="none" stroke="#f6eadb" strokeWidth="3" strokeLinecap="round" />
         </svg>

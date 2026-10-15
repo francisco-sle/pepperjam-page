@@ -25,6 +25,10 @@ const FLICK = 0.5 // px/ms for a quick flick to finish the turn
  * @param {() => number} o.spread        current spread index
  * @param {() => number} o.lastSpread    last spread index
  * @param {(dir: 1|-1) => void} o.turn   navigate one spread forward/back
+ * @param {(dir: 1|-1) => void} o.lift   a page was picked up off that side's stack
+ * @param {() => void} o.settle          the book is at rest, re-sync the stacks
+ * @param {(t: number) => void} o.drag   how far (0–1) a dragged page has been turned
+ * @param {(done: boolean) => void} o.release  the drag ended; the turn finishes or falls back
  */
 export function attachPageInput(book, host, o) {
   const fc = book.getFlipController()
@@ -155,12 +159,16 @@ export function attachPageInput(book, host, o) {
       document.documentElement.classList.add('pj-grabbing')
       if (drag.edge) {
         book.startUserTouch(drag.start)
+        o.lift(drag.dir)
       }
     }
 
     drag.trail.push([performance.now(), e.clientX])
     if (drag.trail.length > 6) drag.trail.shift()
-    if (drag.edge) book.userMove(local(e), false)
+    if (drag.edge) {
+      book.userMove(local(e), false)
+      o.drag(Math.max(0, Math.min(1, (-dx * drag.dir) / (2 * rect().pageWidth))))
+    }
   }
 
   const end = (e, cancelled = false) => {
@@ -200,8 +208,15 @@ export function attachPageInput(book, host, o) {
       const spine = r.left + r.pageWidth
       book.userMove({ x: spine - d.dir * r.pageWidth * 0.25, y: d.start.y }, false)
     }
+    // PageFlip finishes the turn if the folded corner has crossed the spine
+    // (it can be well ahead of the pointer), otherwise the page falls back
+    const corner = fc.calc?.getPosition()
+    o.release(!!corner && corner.x <= 0)
     book.userStop(e ? local(e) : d.start)
     peeled = null
+    // a drag that never got the page moving leaves PageFlip at rest without
+    // a state change, so put the lifted sheet back by hand
+    setTimeout(() => book.getState() === 'read' && o.settle(), 0)
   }
 
   const onUp = (e) => end(e)

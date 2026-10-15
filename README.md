@@ -17,7 +17,9 @@ To check a production build: `npm run build && npm run preview`.
 ## How to use the sketchbook
 
 - **Turn pages:** use the side tabs, the ◀ ▶ buttons and dots on the bottom edge, or the ← → keys.
-  Hover a page corner to see it peel, then drag it over — or swipe on touch screens.
+  With a mouse, the outer edge of a page shows a hand cursor: hover its corner to lift it, click the
+  corner to turn, or press and drag the page over (a quick flick works too). On touch screens, swipe
+  left/right anywhere on the page. Clicks on photos, buttons and links never turn the page.
 - **Tabs:** like a real divider notebook, tabs of sections you've passed move to the left edge.
 - **Gallery:** click a piece to open it in a closer view. You can "heart" favorites (saved in your browser).
 - **Merch:** pick an item on the shelf (or use the yellow arrows) to feature it.
@@ -60,6 +62,8 @@ src/
   App.jsx              layout, navigation state, keyboard + URL hash
   components/
     Book.jsx           the sketchbook (wraps StPageFlip)
+    pageInput.js       mouse/touch handling for turning pages (grab zones, corner lift, drag, swipe)
+    cursors.js         hand-drawn grab / grabbing cursors
     Tabs.jsx           divider tabs
     SignBoard.jsx      wooden title sign (header)
     Footer.jsx         footer: date, socials, sound

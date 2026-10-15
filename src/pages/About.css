@@ -1,0 +1,181 @@
+.about-portrait {
+  position: relative;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.polaroid--big {
+  flex: 1;
+  min-height: 0;
+  width: 86%;
+  margin: 0.4em auto 0;
+  rotate: -2deg;
+}
+
+.polaroid--big .artwork {
+  flex: 1;
+  min-height: 0;
+}
+
+.sticker--frog {
+  width: 17cqw;
+  height: auto;
+  right: 0;
+  bottom: 2%;
+  rotate: 8deg;
+}
+
+.sticker--spark1 {
+  top: 12%;
+  right: 2%;
+  width: 6cqw;
+  height: auto;
+}
+
+.sticker--spark2 {
+  top: 20%;
+  left: -2%;
+  width: 4cqw;
+  height: auto;
+}
+
+.about-bio {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1em;
+}
+
+/* Dialogue card */
+.dialogue {
+  position: relative;
+  width: 100%;
+  flex: 1 0 auto;
+  padding: 1.7em 1.3em 1.1em;
+  margin-top: 0.8em;
+  background: #fffdf9;
+  border: var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--lift);
+}
+
+.dialogue__head {
+  position: absolute;
+  top: 0;
+  left: 1.1em;
+  translate: 0 -55%;
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+}
+
+.name-plate {
+  font-weight: 600;
+  font-size: 0.95em;
+  padding: 0.1em 0.9em;
+  background: var(--cocoa);
+  border: var(--line);
+  border-radius: 999px;
+}
+
+@container (max-width: 400px) {
+  .dialogue__role {
+    display: none;
+  }
+}
+
+.dialogue__role {
+  white-space: nowrap;
+  font-family: var(--font-hand);
+  font-size: 1.2em;
+  color: var(--ink-soft);
+  background: #fffdf9;
+  padding: 0 0.3em;
+  border-radius: 6px;
+}
+
+.dialogue__greeting {
+  font-size: 1.4em;
+  font-weight: 700;
+  margin-bottom: 0.35em;
+  color: var(--rust-dark);
+}
+
+.dialogue__text {
+  line-height: 1.45;
+  margin-bottom: 0.55em;
+}
+
+.skills {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.25em;
+}
+
+.skills li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5em;
+  font-weight: 500;
+}
+
+.skills__hearts {
+  display: inline-flex;
+  gap: 0.15em;
+}
+
+.heart {
+  width: 1.15em;
+  height: 1em;
+  fill: var(--paper-2);
+  stroke: var(--ink);
+  stroke-width: 1.4;
+}
+
+.heart.is-filled {
+  fill: var(--rust);
+}
+
+.facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4em;
+  margin: 0.8em 0 0;
+}
+
+.facts > div {
+  padding: 0.2em 0.8em 0.25em;
+  background: var(--matcha-light);
+  border: 2px solid var(--ink);
+  border-radius: var(--radius-sm);
+}
+
+.facts dt {
+  font-size: 0.65em;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--olive);
+}
+
+.facts dd {
+  margin: 0;
+  font-weight: 500;
+  line-height: 1.1;
+}
+
+.about-cta {
+  font-size: 1.05em;
+  flex: none;
+}
+
+.about-cta .doodle {
+  --rust: var(--paper);
+  width: 1.3em;
+  height: 1.3em;
+}

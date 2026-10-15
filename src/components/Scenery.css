@@ -1,0 +1,67 @@
+.scenery {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at 50% 45%, rgb(255 250 241 / 0.55), transparent 70%),
+    repeating-conic-gradient(#fbe4d4 0 25%, #f7d5c2 0 50%) 0 0 / 64px 64px;
+}
+
+/* Lace trim, like the scalloped edges in the moodboard */
+.scenery__lace {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 26px;
+  z-index: 1;
+}
+
+.scenery__lace--top {
+  top: 0;
+  background:
+    radial-gradient(circle at 14px 4px, var(--rust) 2.4px, transparent 3px) 0 6px / 28px 20px repeat-x,
+    radial-gradient(circle at 14px 0, var(--paper) 13px, transparent 13.5px) 0 10px / 28px 16px repeat-x,
+    linear-gradient(var(--paper), var(--paper)) 0 0 / 100% 11px no-repeat;
+}
+
+.scenery__sparkle {
+  position: absolute;
+  --mustard: var(--paper);
+  opacity: 0.9;
+  animation: twinkle 3.2s ease-in-out infinite;
+}
+
+@keyframes twinkle {
+  0%, 100% { transform: scale(0.75) rotate(0deg); opacity: 0.5; }
+  50% { transform: scale(1.1) rotate(20deg); opacity: 0.95; }
+}
+
+.falling {
+  position: absolute;
+  top: -40px;
+  animation: fall linear infinite;
+  animation-fill-mode: backwards;
+}
+
+.falling__leaf {
+  display: block;
+  animation: flutter 3.4s ease-in-out infinite;
+}
+
+@keyframes fall {
+  from { transform: translateY(-40px); }
+  to { transform: translateY(calc(100vh + 80px)); }
+}
+
+@keyframes flutter {
+  0%, 100% { translate: 0 0; rotate: -25deg; }
+  50% { translate: 46px 0; rotate: 35deg; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .falling {
+    display: none;
+  }
+}

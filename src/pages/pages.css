@@ -1,0 +1,74 @@
+/* Bits shared by every sketchbook page */
+
+.page-title {
+  display: flex;
+  align-items: center;
+  gap: 0.35em;
+  font-size: 1.6em;
+  font-weight: 700;
+  line-height: 1.1;
+  margin-bottom: 0.5em;
+}
+
+.page-title .doodle {
+  width: 1.1em;
+  height: 1.1em;
+  flex: none;
+}
+
+.page-note {
+  font-family: var(--font-hand);
+  font-size: 1.35em;
+  line-height: 1.1;
+  color: var(--ink-soft);
+}
+
+/* Photo frame */
+.polaroid {
+  position: relative;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 0.5em 0.5em 0;
+  background: #fffdf9;
+  border: var(--line);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--lift);
+}
+
+.polaroid .artwork {
+  border-radius: 8px;
+}
+
+.polaroid figcaption {
+  font-weight: 500;
+  font-size: 0.95em;
+  text-align: center;
+  padding: 0.3em 0 0.35em;
+  line-height: 1.1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sticker {
+  position: absolute;
+  pointer-events: none;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  font-weight: 600;
+  font-size: 0.75em;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.1em 0.65em;
+  background: var(--mustard);
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+}
+
+.badge--rust {
+  background: var(--rust);
+}

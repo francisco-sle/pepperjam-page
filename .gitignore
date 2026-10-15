@@ -1,0 +1,7 @@
+node_modules
+dist
+.DS_Store
+
+# local reference material (not part of the site)
+moodboard/
+wireframe/

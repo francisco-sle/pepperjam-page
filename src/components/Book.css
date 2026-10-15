@@ -85,6 +85,13 @@
   overflow: hidden;
 }
 
+/* Page content scrolls on its own, which resets touch-action, so keep
+   horizontal swipes for turning pages and let the browser handle only vertical. */
+.pf-host,
+.pf-host .page__content {
+  touch-action: pan-y;
+}
+
 /* ---------- Pages ---------- */
 
 .page {
@@ -226,4 +233,16 @@
 .pf-host .stf__item {
   will-change: transform;
   contain: strict;
+}
+
+/* ---------- Cursors (see cursors.js) ---------- */
+
+.pf-host[data-grab='grab'],
+.pf-host[data-grab='grab'] * {
+  cursor: var(--cursor-grab);
+}
+
+html.pj-grabbing,
+html.pj-grabbing * {
+  cursor: var(--cursor-grabbing) !important;
 }

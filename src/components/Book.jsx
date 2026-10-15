@@ -2,6 +2,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useReducedMotion } from 'motion/react'
 import { PageFlip } from 'page-flip'
+import { attachPageInput } from './pageInput'
 import { playFlip } from '../hooks/sound'
 import './Book.css'
 
@@ -38,6 +39,7 @@ export default function Book({ pages, page, single, onNavigate, children }) {
     return el
   })
   const bookRef = useRef(null)
+  const inputRef = useRef(null)
   const current = useRef(page) // page the book is showing
   const target = useRef(page) // page we were asked to show
   const navRef = useRef(onNavigate)
@@ -72,7 +74,10 @@ export default function Book({ pages, page, single, onNavigate, children }) {
   // Walk towards `target` one spread at a time, so long jumps riffle through the pages.
   const step = () => {
     const book = bookRef.current
-    if (!book || book.getState() !== 'read') return
+    if (!book) return
+    // a corner lifted by hovering shouldn't block tabs / arrows / keys
+    if (book.getState() === 'fold_corner') inputRef.current?.unpeel()
+    if (book.getState() !== 'read') return
     const from = spreadOf(current.current)
     const to = spreadOf(target.current)
     if (from === to) return
@@ -98,14 +103,6 @@ export default function Book({ pages, page, single, onNavigate, children }) {
     host.className = 'pf-host'
     areaRef.current.prepend(host)
 
-    // Let buttons and links inside pages work normally (PageFlip only checks the
-    // exact element under the pointer, so icons inside buttons would start a fold).
-    const guard = (e) => {
-      if (e.target.closest?.('a, button, [data-no-flip]')) e.stopPropagation()
-    }
-    host.addEventListener('mousedown', guard, true)
-    host.addEventListener('touchstart', guard, true)
-
     const book = new PageFlip(host, {
       width: size.w,
       height: size.h,
@@ -117,12 +114,13 @@ export default function Book({ pages, page, single, onNavigate, children }) {
       flippingTime: FLIP_MS,
       drawShadow: true,
       maxShadowOpacity: 0.4,
-      showPageCorners: true,
+      showPageCorners: false,
       disableFlipByClick: true,
       mobileScrollSupport: true,
       swipeDistance: 30,
       clickEventForward: true,
-      useMouseEvents: true,
+      // pointer input is handled by pageInput.js (see why there)
+      useMouseEvents: false,
       startZIndex: 1,
     })
 
@@ -146,10 +144,20 @@ export default function Book({ pages, page, single, onNavigate, children }) {
     book.getUI().getDistElement().appendChild(ringHost)
     bookRef.current = book
 
+    const lastSpread = single ? pages.length - 1 : Math.ceil(pages.length / 2) - 1
+    inputRef.current = attachPageInput(book, host, {
+      spread: () => spreadOf(current.current),
+      lastSpread: () => lastSpread,
+      turn: (dir) => {
+        const s = Math.max(0, Math.min(lastSpread, spreadOf(target.current) + dir))
+        navRef.current(single ? s : s * 2)
+      },
+    })
+
     return () => {
+      inputRef.current?.destroy()
+      inputRef.current = null
       bookRef.current = null
-      host.removeEventListener('mousedown', guard, true)
-      host.removeEventListener('touchstart', guard, true)
       ringHost.remove()
       book.destroy()
     }

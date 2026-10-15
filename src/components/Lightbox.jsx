@@ -44,7 +44,7 @@ export default function Lightbox({ index, onClose, onChange, favorites, onToggle
           className="lightbox"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
+          exit={{ opacity: 0, pointerEvents: 'none', transition: { duration: 0.2 } }}
           onClick={onClose}
         >
           <motion.div
@@ -54,7 +54,7 @@ export default function Lightbox({ index, onClose, onChange, favorites, onToggle
             aria-labelledby="lightbox-title"
             initial={{ scale: 0.85, y: 40, rotate: -3 }}
             animate={{ scale: 1, y: 0, rotate: 0 }}
-            exit={{ scale: 0.9, y: 30, rotate: 2, opacity: 0 }}
+            exit={{ scale: 0.92, y: 20, rotate: 2, opacity: 0, transition: { duration: 0.18 } }}
             transition={{ type: 'spring', stiffness: 300, damping: 22 }}
             onClick={(e) => e.stopPropagation()}
           >

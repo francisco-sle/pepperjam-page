@@ -83,21 +83,25 @@ export function MerchFeatured() {
           <ChevronIcon />
         </button>
 
-        <AnimatePresence mode="popLayout" initial={false}>
-          <motion.figure
-            key={item.id}
-            className="polaroid merch-featured__photo"
-            initial={{ opacity: 0, scale: 0.9, rotate: -6 }}
-            animate={{ opacity: 1, scale: 1, rotate: 1.5 }}
-            exit={{ opacity: 0, scale: 0.9, rotate: 6 }}
-            transition={{ type: 'spring', stiffness: 300, damping: 22 }}
-          >
-            <Mount kind="corners" color="var(--mustard)" />
-            <Mount kind="clip" />
-            <Artwork src={item.image} alt={item.name} tint={item.tint} doodle={item.doodle} label="product photo" />
-            {item.limited && <span className="badge badge--rust merch-featured__limited">Limited</span>}
-          </motion.figure>
-        </AnimatePresence>
+        {/* the outgoing photo is lifted out while it fades; this box is what
+            it's positioned against (a grid cell would offset it twice) */}
+        <div className="merch-featured__viewport">
+          <AnimatePresence mode="popLayout" initial={false}>
+            <motion.figure
+              key={item.id}
+              className="polaroid merch-featured__photo"
+              initial={{ opacity: 0, scale: 0.9, rotate: -6 }}
+              animate={{ opacity: 1, scale: 1, rotate: 1.5 }}
+              exit={{ opacity: 0, scale: 0.9, rotate: 6 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 22 }}
+            >
+              <Mount kind="corners" color="var(--mustard)" />
+              <Mount kind="clip" />
+              <Artwork src={item.image} alt={item.name} tint={item.tint} doodle={item.doodle} label="product photo" />
+              {item.limited && <span className="badge badge--rust merch-featured__limited">Limited</span>}
+            </motion.figure>
+          </AnimatePresence>
+        </div>
 
         <button className="chevron chevron--next" onClick={() => go(1)} aria-label="Next item">
           <ChevronIcon />

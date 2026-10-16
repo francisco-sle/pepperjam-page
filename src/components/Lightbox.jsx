@@ -3,7 +3,7 @@ import { AnimatePresence, animate, motion, useMotionValue, useReducedMotion, use
 import { gallery } from '../content/gallery'
 import Artwork from './Artwork'
 import Doodle from './Doodle'
-import { findPhoto, measureFrame, measurePhoto, subjectOf } from './photoLift'
+import { findPhoto, measureFrame, measurePhoto } from './photoLift'
 import { playPat, playPop } from '../hooks/sound'
 import './Lightbox.css'
 
@@ -51,12 +51,6 @@ export default function Lightbox({ index, from, onClose, onChange, favorites, on
     else putBack()
   }
 
-  // how much smaller than the frame the photo has to be to fit over it
-  // (when their shapes are very different); the frame zooms in from that
-  const placed = (zoom) => setFlight((f) => f && { ...f, zoom })
-  // the photo is over the frame: show the frame underneath while it fades out
-  const handOver = () => setFlight((f) => f && { ...f, handedOver: true })
-
   const landed = () => {
     if (flight.dir === 'out') {
       setFlight(null)
@@ -97,7 +91,6 @@ export default function Lightbox({ index, from, onClose, onChange, favorites, on
   }
 
   const leaving = flight?.dir === 'out'
-  const arriving = flight?.dir === 'in' && !flight.handedOver
 
   return (
     <>
@@ -108,8 +101,7 @@ export default function Lightbox({ index, from, onClose, onChange, favorites, on
             initial={{ opacity: 0 }}
             animate={{ opacity: leaving ? 0 : 1 }}
             exit={{ opacity: 0, pointerEvents: 'none', transition: { duration: 0.2 } }}
-            // when a photo is flying in, the card waits until it's off the page
-            transition={leaving ? { duration: 0.3 } : { duration: 0.35, delay: flight ? 0.18 : 0 }}
+            transition={{ duration: leaving ? 0.3 : 0.25 }}
             onClick={close}
           >
             <motion.div
@@ -150,13 +142,10 @@ export default function Lightbox({ index, from, onClose, onChange, favorites, on
                 </button>
                 {/* the outgoing art is lifted out while it fades; this box is what
                     it's positioned against (a grid cell would offset it twice) */}
-                <motion.div
+                <div
                   className="lightbox__viewport"
-                  // empty until the flying photo gets here, then it fades in under
-                  // it (and the other way round when it's put back)
-                  style={{ transformOrigin: flight?.from.origin ?? flight?.to.origin }}
-                  animate={arriving || leaving ? { opacity: 0, scale: flight.zoom ?? 1 } : { opacity: 1, scale: 1 }}
-                  transition={arriving ? { duration: 0 } : leaving ? HAND_BACK : HAND_OVER}
+                  // the flying photo stands in for the frame until it lands
+                  style={{ visibility: flight ? 'hidden' : undefined }}
                 >
                   <AnimatePresence mode="popLayout" initial={false}>
                     <motion.div
@@ -171,7 +160,7 @@ export default function Lightbox({ index, from, onClose, onChange, favorites, on
                       <Artwork src={piece.image} alt={piece.title} tint={piece.tint} doodle={piece.doodle} />
                     </motion.div>
                   </AnimatePresence>
-                </motion.div>
+                </div>
                 <button className="chevron chevron--next" onClick={() => go(1)} aria-label="Next artwork">
                   <Chevron />
                 </button>
@@ -208,7 +197,7 @@ export default function Lightbox({ index, from, onClose, onChange, favorites, on
           </motion.div>
         )}
       </AnimatePresence>
-      {open && flight && <Flyer key={flight.dir} flight={flight} onPlaced={placed} onHandOver={handOver} onDone={landed} />}
+      {open && flight && <Flyer key={flight.dir} flight={flight} onDone={landed} />}
     </>
   )
 }
@@ -222,209 +211,177 @@ function Chevron() {
   )
 }
 
-// How each mount lets go of its photo: the edge it hinges on as it peels up,
-// how far it tips towards you (deg), and which way it slides free (× height).
+// How each mount lets go of its photo: the point it hinges on as it peels
+// up (as a fraction of the photo) and how far it tips towards you (deg).
 const PEEL = {
   // held at the top: the bottom comes up first, the tape stays on the page
-  tape: { origin: '50% 0%', rotateX: 24, rotateY: 0, dy: -0.04 },
+  tape: { origin: [0.5, 0], rotateX: 22, rotateY: 0 },
   // tucked into four corners: one corner lifts and it slides out
-  corners: { origin: '0% 0%', rotateX: 12, rotateY: -16, dy: -0.05 },
-  // the pin comes out first, then it lifts off flat-ish
-  pin: { origin: '50% 50%', rotateX: 8, rotateY: 6, dy: -0.06, delay: 0.1 },
+  corners: { origin: [0, 0], rotateX: 12, rotateY: -14 },
+  // the pin's pulled out, then it comes away flat-ish
+  pin: { origin: [0.5, 0.5], rotateX: 8, rotateY: 6 },
   // slides down out of the clip, top edge tipping up
-  clip: { origin: '50% 100%', rotateX: -14, rotateY: 0, dy: 0.06 },
+  clip: { origin: [0.5, 1], rotateX: -14, rotateY: 0 },
 }
 
-// the photo and the frame swapping places: a cross-fade, with a little zoom
-// if the photo had to be shrunk to fit over the frame
-const HAND_OVER = { duration: 0.3, ease: 'easeInOut' }
-// picking it back up is quicker: closing shouldn't keep you waiting
-const HAND_BACK = { duration: 0.2, ease: 'easeOut' }
+// One continuous move each way, like a view transition: quick off the mark,
+// soft landing.
+const OPEN = { duration: 0.4, ease: [0.2, 0.8, 0.2, 1] }
+const CLOSE = { duration: 0.35, ease: [0.4, 0, 0.2, 1] }
 
 const clamp = (v, max) => Math.max(-max, Math.min(max, v))
-const wait = (s) => new Promise((done) => setTimeout(done, s * 1000))
-
-// carried across the screen by hand: speeds up evenly and slows down softly,
-// taking a little longer the further it goes
-const carryOver = (dist) => ({ duration: Math.min(0.6, Math.max(0.38, 0.3 + dist / 1400)), ease: [0.45, 0, 0.25, 1] })
-// straightening up in your hand: a little wobble at the end
-const WOBBLE = { type: 'spring', visualDuration: 0.55, bounce: 0.35 }
 
 /**
  * The photo while it's off the page, drawn above everything.
  *
- * It's handled like a real photo: it never changes shape, it only moves,
- * turns, tips and comes closer. It peels up, is carried along a slight arc
- * (tipping with its own speed, like a card through air), and is set down
- * over the lightbox frame at whatever size fits, where it hands over to the
- * frame with a short fade. Putting it back runs the other way and ends with
- * a press onto the page.
+ * Works like a view transition between the photo on the page and the
+ * lightbox frame: a copy of each, pinned together on their subject, moves
+ * from one place to the other in a single motion while they cross-fade, so
+ * the photo turns into the framed print on the way. Neither copy ever
+ * changes shape; the pair only moves, turns and grows.
+ *
+ * The same timeline also lets the photo peel up from its mount, travel in a
+ * slight arc and tip a little with its own speed, with its shadow dropping
+ * away while it's in the air.
  */
-function Flyer({ flight, onPlaced, onHandOver, onDone }) {
+function Flyer({ flight, onDone }) {
   const { dir, piece } = flight
   const photo = dir === 'in' ? flight.from : flight.to
   const frame = dir === 'in' ? flight.to : flight.from
   const peel = PEEL[photo.mount] ?? PEEL.tape
-  // both directions start on the page; putting it back jumps to the frame
-  // (still invisible) once it knows where that is
-  const start = { x: photo.cx, y: photo.cy, scale: 1, rotate: photo.rotate, shadow: 8, opacity: dir === 'in' ? 1 : 0 }
-  const sheetRef = useRef(null)
+
+  // where each end puts the shared subject on screen
+  const a = (photo.rotate * Math.PI) / 180
+  const px = photo.subject.x - photo.w / 2
+  const py = photo.subject.y - photo.h / 2
+  const onPage = {
+    x: photo.cx + px * Math.cos(a) - py * Math.sin(a),
+    y: photo.cy + px * Math.sin(a) + py * Math.cos(a),
+    scale: 1,
+    rotate: photo.rotate,
+  }
+  const inFrame = {
+    x: frame.cx - frame.w / 2 + frame.subject.x,
+    y: frame.cy - frame.h / 2 + frame.subject.y,
+    // how much bigger the picture is in the frame than on the page
+    scale: frame.subject.w / photo.subject.w,
+    rotate: 0,
+  }
+  const [start, end] = dir === 'in' ? [onPage, inFrame] : [inFrame, onPage]
+  const rest = dir === 'in'
+    ? { shadow: 8, photoOpacity: 1, frameOpacity: 0 }
+    : { shadow: 4, photoOpacity: 0, frameOpacity: 1 }
 
   const x = useMotionValue(start.x)
   const y = useMotionValue(start.y)
-  const arc = useMotionValue(0)
   const scale = useMotionValue(start.scale)
   const rotate = useMotionValue(start.rotate)
+  const arc = useMotionValue(0)
   const peelX = useMotionValue(0)
   const peelY = useMotionValue(0)
-  const shadow = useMotionValue(start.shadow)
-  const opacity = useMotionValue(start.opacity)
+  const shadow = useMotionValue(rest.shadow)
+  const photoOpacity = useMotionValue(rest.photoOpacity)
+  const frameOpacity = useMotionValue(rest.frameOpacity)
 
   const top = useTransform(() => y.get() + arc.get())
   const vx = useVelocity(x)
   const vy = useVelocity(top)
   // the leading edge drags back a little while it moves
-  const tiltX = useTransform(() => peelX.get() - clamp(vy.get() * 0.01, 10))
-  const tiltY = useTransform(() => peelY.get() + clamp(vx.get() * 0.01, 10))
+  const tiltX = useTransform(() => peelX.get() - clamp(vy.get() * 0.006, 8))
+  const tiltY = useTransform(() => peelY.get() + clamp(vx.get() * 0.006, 8))
   const shadowX = useTransform(shadow, (s) => s * 0.7)
 
-  // Where the photo sits over the frame: its picture's subject on the frame's
-  // (same centre, and the same size when it fits), so the hand-over only
-  // changes the border around it. Measured on this copy while it's still flat
-  // on the page. `at(k)` is where it goes at scale k to keep the subjects lined up.
-  const placeOverFrame = () => {
-    const subject = subjectOf(sheetRef.current)
-    const r = subject.getBoundingClientRect()
-    const a = (photo.rotate * Math.PI) / 180
-    const c = Math.cos(a)
-    const s = Math.sin(a)
-    const ox = r.left + r.width / 2 - photo.cx
-    const oy = r.top + r.height / 2 - photo.cy
-    const lx = c * ox + s * oy
-    const ly = c * oy - s * ox
-    const w = subject instanceof SVGElement ? r.width / (Math.abs(c) + Math.abs(s)) : subject.offsetWidth
-    const full = frame.subject.w / w
-    // a photo much taller or wider than the frame mustn't cover the whole
-    // card, but it never gets smaller than it was on the page (you're
-    // bringing it closer)
-    const fit = Math.min(full, Math.max(1, Math.min((frame.w * 1.15) / photo.w, (frame.h * 1.15) / photo.h)))
-    return { full, fit, at: (k) => ({ x: frame.subject.cx - lx * k, y: frame.subject.cy - ly * k }) }
-  }
-
   useEffect(() => {
-    const values = [x, y, arc, scale, rotate, peelX, peelY, shadow, opacity]
+    const t = dir === 'in' ? OPEN : CLOSE
+    const along = (times, ease = 'easeInOut') => ({ duration: t.duration, times, ease })
+    const dist = Math.hypot(end.x - start.x, end.y - start.y)
+    const lift = -Math.min(50, dist * 0.12)
+    // peels up early when taken off, settles late when put back
+    const peak = dir === 'in' ? 0.3 : 0.6
+
+    const main = [
+      animate(x, end.x, t),
+      animate(y, end.y, t),
+      animate(scale, end.scale, t),
+      animate(rotate, end.rotate, t),
+    ]
+    animate(arc, [0, lift, 0], along([0, 0.45, 1]))
+    animate(peelX, [0, peel.rotateX, 0], along([0, peak, 1]))
+    animate(peelY, [0, peel.rotateY, 0], along([0, peak, 1]))
+    animate(shadow, [rest.shadow, 16, 4], along([0, peak, 1]))
+    // a quick cross-fade early on: the incoming picture fades in a little
+    // ahead of the outgoing one fading out, so the pair never goes
+    // see-through, and the outgoing one is gone before it's grown much
+    const [incoming, outgoing] = dir === 'in' ? [frameOpacity, photoOpacity] : [photoOpacity, frameOpacity]
+    animate(incoming, [0, 1, 1], along([0, 0.35, 1], 'linear'))
+    animate(outgoing, [1, 1, 0, 0], along([0, 0.1, 0.45, 1], 'linear'))
+
     let cancelled = false
-    const all = (...a) => Promise.all(a)
-    const { full, fit, at } = placeOverFrame()
-    const inFrame = at(fit)
-    const zoomTo = (k, t) => [animate(scale, k, t), animate(x, at(k).x, t), animate(y, at(k).y, t)]
-    onPlaced(fit / full)
-    const dist = Math.hypot(inFrame.x - photo.cx, inFrame.y - photo.cy)
-    const lift = -Math.min(60, dist * 0.15)
-    const carry = carryOver(dist)
-
-    const takeOff = async () => {
-      const t = { duration: 0.2, ease: 'easeOut', delay: peel.delay ?? 0 }
-      await all(
-        animate(peelX, peel.rotateX, t),
-        animate(peelY, peel.rotateY, t),
-        animate(scale, 1.05, t),
-        animate(y, photo.cy + photo.h * peel.dy, t),
-        animate(shadow, 18, t),
-      )
+    Promise.all(main).then(() => {
       if (cancelled) return
-      animate(arc, [0, lift, 0], { duration: carry.duration, ease: ['easeOut', 'easeIn'] })
-      animate(peelX, 0, WOBBLE)
-      animate(peelY, 0, WOBBLE)
-      animate(rotate, 0, WOBBLE)
-      animate(shadow, 4, { duration: 0.3, delay: 0.25 })
-      animate(x, inFrame.x, carry)
-      animate(y, inFrame.y, carry)
-      animate(scale, fit, carry)
-      // start handing over as it settles, so it flows straight into the frame
-      await wait(carry.duration * 0.75)
-      if (cancelled) return
-      onHandOver()
-      await all(animate(opacity, 0, HAND_OVER), ...zoomTo(full, HAND_OVER))
-      if (!cancelled) onDone()
-    }
-
-    const putDown = async () => {
-      x.jump(at(full).x)
-      y.jump(at(full).y)
-      scale.jump(full)
-      rotate.jump(0)
-      shadow.jump(4)
-      await all(animate(opacity, 1, HAND_BACK), ...zoomTo(fit, HAND_BACK))
-      if (cancelled) return
-      await all(animate(scale, fit * 1.04, { duration: 0.1, ease: 'easeOut' }), animate(shadow, 18, { duration: 0.1 }))
-      if (cancelled) return
-      const hoverY = photo.cy + photo.h * peel.dy
-      animate(arc, [0, lift, 0], { duration: carry.duration, ease: ['easeOut', 'easeIn'] })
-      animate(rotate, photo.rotate, WOBBLE)
-      animate(peelX, peel.rotateX * 0.5, WOBBLE)
-      animate(peelY, peel.rotateY * 0.5, WOBBLE)
-      animate(x, photo.cx, carry)
-      animate(y, hoverY, carry)
-      animate(scale, 1.05, carry)
-      await wait(carry.duration * 0.9)
-      if (cancelled) return
-      const press = { duration: 0.14, ease: 'easeIn' }
-      await all(
-        animate(y, photo.cy, press),
-        animate(scale, 1, press),
-        animate(peelX, 0, press),
-        animate(peelY, 0, press),
-        animate(shadow, 4, press),
-      )
-      if (cancelled) return
-      playPat()
+      if (dir === 'out') playPat()
       onDone()
-    }
-
-    if (dir === 'in') takeOff()
-    else putDown()
+    })
     return () => {
       cancelled = true
-      values.forEach((v) => v.stop())
       // StrictMode runs this twice in development: start the second run fresh
-      Object.entries(start).forEach(([k, v]) => ({ x, y, scale, rotate, shadow, opacity })[k].jump(v))
-      ;[arc, peelX, peelY].forEach((v) => v.jump(0))
+      const values = { ...start, arc: 0, peelX: 0, peelY: 0, ...rest }
+      const mv = { x, y, scale, rotate, arc, peelX, peelY, shadow, photoOpacity, frameOpacity }
+      Object.entries(values).forEach(([k, v]) => {
+        mv[k].stop()
+        mv[k].jump(v)
+      })
     }
     // the flight is fixed for the life of this component
   }, [])
 
+  // the hinge, measured from the subject (where the flyer's origin is)
+  const hinge = `${peel.origin[0] * photo.w - photo.subject.x}px ${peel.origin[1] * photo.h - photo.subject.y}px`
+
   return (
-    <motion.div
-      className="flyer"
-      aria-hidden="true"
-      style={{
-        left: -photo.w / 2,
-        top: -photo.h / 2,
-        width: photo.w,
-        height: photo.h,
-        fontSize: photo.fontSize,
-        x,
-        y: top,
-        scale,
-        rotate,
-        opacity,
-      }}
-    >
-      <motion.div className="flyer__shadow" style={{ x: shadowX, y: shadow, borderRadius: photo.radius }} />
+    <motion.div className="flyer" aria-hidden="true" style={{ x, y: top, scale, rotate }}>
       <motion.div
-        ref={sheetRef}
-        className="flyer__sheet polaroid"
-        style={{
-          borderRadius: photo.radius,
-          rotateX: tiltX,
-          rotateY: tiltY,
-          transformPerspective: 900,
-          transformOrigin: peel.origin,
-        }}
+        className="flyer__tilt"
+        style={{ rotateX: tiltX, rotateY: tiltY, transformPerspective: 900, transformOrigin: hinge }}
       >
-        <Artwork src={piece.image} alt="" tint={piece.tint} doodle={piece.doodle} label={null} />
-        <span className="polaroid__caption">{piece.title}</span>
+        {/* the photo as it was on the page */}
+        <motion.div
+          className="flyer__layer"
+          style={{
+            left: -photo.subject.x,
+            top: -photo.subject.y,
+            width: photo.w,
+            height: photo.h,
+            fontSize: photo.fontSize,
+            opacity: photoOpacity,
+          }}
+        >
+          <motion.div className="flyer__shadow flyer__shadow--photo" style={{ x: shadowX, y: shadow }} />
+          <div className="flyer__photo polaroid">
+            <Artwork src={piece.image} alt="" tint={piece.tint} doodle={piece.doodle} label={null} />
+            <span className="polaroid__caption">{piece.title}</span>
+          </div>
+        </motion.div>
+
+        {/* the print as it is in the lightbox, shrunk to begin with so its
+            picture matches the photo's */}
+        <motion.div
+          className="flyer__layer"
+          style={{
+            left: -frame.subject.x,
+            top: -frame.subject.y,
+            width: frame.w,
+            height: frame.h,
+            transformOrigin: `${frame.subject.x}px ${frame.subject.y}px`,
+            scale: photo.subject.w / frame.subject.w,
+            opacity: frameOpacity,
+          }}
+        >
+          <motion.div className="flyer__shadow flyer__shadow--frame" style={{ x: shadowX, y: shadow }} />
+          <div className="flyer__frame lightbox__frame">
+            <Artwork src={piece.image} alt="" tint={piece.tint} doodle={piece.doodle} />
+          </div>
+        </motion.div>
       </motion.div>
     </motion.div>
   )

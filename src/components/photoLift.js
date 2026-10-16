@@ -1,13 +1,18 @@
 // Geometry for lifting a photo off a scrapbook page and into the lightbox.
 //
-// A photo on the page is rotated (and, while hovered, scaled and nudged up),
-// so its bounding box isn't its real size. This reads the element's own
-// transform to get back its true centre, size and angle on screen.
+// The photo and the lightbox frame are different shapes, so the transition
+// lines them up on their *subject*: the doodle on a placeholder, otherwise
+// the picture itself. Each measurement says where that subject sits (from
+// the box's top-left corner) and how big it is.
+
+const doodleOf = (el) => el.querySelector('.artwork__doodle')
 
 /** Where a gallery photo sits on screen right now, or null if it isn't shown. */
 export function measurePhoto(el) {
   const r = el.getBoundingClientRect()
   if (!r.width || !r.height) return null
+  // A photo on the page is rotated (and, while hovered, scaled and nudged up),
+  // so its bounding box isn't its real size: read its own transform instead.
   const style = getComputedStyle(el)
   const m = style.transform === 'none' ? new DOMMatrix() : new DOMMatrix(style.transform)
   const angle = Math.atan2(m.b, m.a)
@@ -17,7 +22,10 @@ export function measurePhoto(el) {
   // whatever the page around it is scaled by
   const outer = r.width / (own * (w * Math.abs(Math.cos(angle)) + h * Math.abs(Math.sin(angle))))
   const scale = own * outer
-  const caption = el.querySelector('.polaroid__caption')
+  // Layout values only: the doodle has its own hover wiggle, which mustn't
+  // count. It sits in the middle of the picture (there's no label on the page).
+  const art = el.querySelector('.artwork')
+  const doodle = doodleOf(el)
   return {
     cx: r.left + r.width / 2,
     cy: r.top + r.height / 2,
@@ -25,8 +33,11 @@ export function measurePhoto(el) {
     h: h * scale,
     rotate: (angle * 180) / Math.PI,
     fontSize: parseFloat(style.fontSize) * scale,
-    radius: parseFloat(style.borderTopLeftRadius) * scale,
-    captionH: (caption?.offsetHeight ?? 0) * scale,
+    subject: {
+      x: (el.clientLeft + art.offsetLeft + art.offsetWidth / 2) * scale,
+      y: (el.clientTop + art.offsetTop + art.offsetHeight / 2) * scale,
+      w: (doodle ? parseFloat(getComputedStyle(doodle).width) : art.offsetWidth) * scale,
+    },
     mount: el.dataset.mount,
   }
 }
@@ -43,23 +54,15 @@ export function findPhoto(index) {
   return null
 }
 
-/**
- * What a picture is "of": the doodle on a placeholder, otherwise the image.
- * Lining these up is what makes two pictures read as the same one.
- */
-export const subjectOf = (el) => el.querySelector('.artwork__doodle') ?? el.querySelector('.artwork')
-
-/** The lightbox frame's box and its picture's subject (it never rotates). */
+/** The lightbox frame (it never rotates). */
 export function measureFrame(el) {
   const r = el.getBoundingClientRect()
-  const a = (subjectOf(el) ?? el).getBoundingClientRect()
+  const s = (doodleOf(el) ?? el.querySelector('.artwork') ?? el).getBoundingClientRect()
   return {
     cx: r.left + r.width / 2,
     cy: r.top + r.height / 2,
     w: r.width,
     h: r.height,
-    subject: { cx: a.left + a.width / 2, cy: a.top + a.height / 2, w: a.width },
-    // the subject's spot inside the frame, to zoom the frame around
-    origin: `${a.left + a.width / 2 - r.left}px ${a.top + a.height / 2 - r.top}px`,
+    subject: { x: s.left + s.width / 2 - r.left, y: s.top + s.height / 2 - r.top, w: s.width },
   }
 }

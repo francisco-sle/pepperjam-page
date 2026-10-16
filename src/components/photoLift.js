@@ -49,11 +49,11 @@ export function findPhoto(index) {
   return null
 }
 
-/** The lightbox frame (it never rotates). */
-export function measureFrame(el) {
+/** The lightbox frame (it never rotates), with `shown` the picture in it. */
+export function measureFrame(el, shown = el) {
   const r = el.getBoundingClientRect()
-  const art = el.querySelector('.artwork')
-  const label = el.querySelector('.artwork__label')
+  const art = shown.querySelector('.artwork')
+  const label = shown.querySelector('.artwork__label')
   return {
     cx: r.left + r.width / 2,
     cy: r.top + r.height / 2,

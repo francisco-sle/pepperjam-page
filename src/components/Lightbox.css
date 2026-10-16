@@ -77,9 +77,6 @@
 .lightbox__viewport {
   grid-area: frame;
   position: relative;
-}
-
-.lightbox__viewport {
   /* tallest the picture gets; a tall piece is narrower instead */
   --frame-max-h: min(52dvh, 440px);
 }
@@ -96,9 +93,18 @@
   box-shadow: var(--lift);
 }
 
-.lightbox__frame .artwork {
-  height: auto;
+/* the picture: pieces cross-fade in here, stacked */
+.lightbox__art {
+  position: relative;
   aspect-ratio: var(--aspect, 4 / 3);
+}
+
+.lightbox__art-layer {
+  position: absolute;
+  inset: 0;
+}
+
+.lightbox__frame .artwork {
   border-radius: 10px;
 }
 

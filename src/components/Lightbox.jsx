@@ -23,14 +23,17 @@ export default function Lightbox({ index, from, onClose, onChange, favorites, on
   const [flight, setFlight] = useState(null)
   const closeAfterLanding = useRef(false)
 
-  const frameEl = () => cardRef.current?.querySelector(`[data-piece="${gallery[index].id}"]`)
+  // the print in the card, and the picture of the piece that's showing in it
+  // (while flipping, the previous one is still fading out in there too)
+  const frameEl = () => cardRef.current?.querySelector('.lightbox__frame')
+  const measureShown = (frame) => measureFrame(frame, frame.querySelector(`[data-piece="${gallery[index].id}"]`) ?? frame)
 
   // Before the first paint: hide the frame and put the photo where it was on the page.
   useLayoutEffect(() => {
     if (!open) return
     closeAfterLanding.current = false
     const frame = frameEl()
-    if (from && frame && !reduceMotion) setFlight({ dir: 'in', from, to: measureFrame(frame), piece: gallery[index] })
+    if (from && frame && !reduceMotion) setFlight({ dir: 'in', from, to: measureShown(frame), piece: gallery[index] })
     // only when it opens; flipping through pieces doesn't fly anything
   }, [open])
 
@@ -42,7 +45,7 @@ export default function Lightbox({ index, from, onClose, onChange, favorites, on
       setFlight(null)
       return onClose()
     }
-    setFlight({ dir: 'out', from: measureFrame(frame), to: measurePhoto(photo), piece: gallery[index] })
+    setFlight({ dir: 'out', from: measureShown(frame), to: measurePhoto(photo), piece: gallery[index] })
   }
 
   const close = () => {
@@ -86,6 +89,14 @@ export default function Lightbox({ index, from, onClose, onChange, favorites, on
   const piece = open ? gallery[index] : null
   // the picture keeps the shape it has in the book (the card grows to fit)
   const aspect = useMemo(() => (open && artAspect(index)) || 4 / 3, [open, index])
+  // counts openings, so each one starts with a fresh frame already the right
+  // shape (only flipping between pieces animates it)
+  const session = useRef(0)
+  const wasOpen = useRef(false)
+  if (open !== wasOpen.current) {
+    if (open) session.current += 1
+    wasOpen.current = open
+  }
   const fav = piece && favorites.includes(piece.id)
   const go = (d) => {
     if (flight) return
@@ -146,27 +157,12 @@ export default function Lightbox({ index, from, onClose, onChange, favorites, on
                 <button className="chevron chevron--prev" onClick={() => go(-1)} aria-label="Previous artwork">
                   <Chevron />
                 </button>
-                {/* the outgoing art is lifted out while it fades; this box is what
-                    it's positioned against (a grid cell would offset it twice) */}
                 <div
                   className="lightbox__viewport"
                   // the flying photo stands in for the frame until it lands
                   style={{ visibility: flight ? 'hidden' : undefined }}
                 >
-                  <AnimatePresence mode="popLayout" initial={false}>
-                    <motion.div
-                      key={piece.id}
-                      data-piece={piece.id}
-                      className="lightbox__frame"
-                      style={{ '--aspect': aspect }}
-                      initial={{ opacity: 0, scale: 0.94 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.94 }}
-                      transition={{ duration: 0.22 }}
-                    >
-                      <Artwork src={piece.image} alt={piece.title} tint={piece.tint} doodle={piece.doodle} />
-                    </motion.div>
-                  </AnimatePresence>
+                  <Frame key={session.current} piece={piece} aspect={aspect} />
                 </div>
                 <button className="chevron chevron--next" onClick={() => go(1)} aria-label="Next artwork">
                   <Chevron />
@@ -206,6 +202,41 @@ export default function Lightbox({ index, from, onClose, onChange, favorites, on
       </AnimatePresence>
       {open && flight && <Flyer key={flight.dir} flight={flight} onDone={landed} />}
     </>
+  )
+}
+
+/**
+ * The print in the card. There's one for as long as the lightbox is open:
+ * flipping to a piece of a different shape eases it to the new shape (and
+ * the card grows or shrinks with it), while the pictures cross-fade inside.
+ * It's resized for real, through --aspect, so its border never gets
+ * squashed the way scaling it would.
+ */
+function Frame({ piece, aspect }) {
+  const shape = useMotionValue(aspect)
+  useEffect(() => {
+    const resize = animate(shape, aspect, { duration: 0.35, ease: [0.3, 0, 0.2, 1] })
+    return () => resize.stop()
+  }, [aspect])
+
+  return (
+    <motion.div className="lightbox__frame" style={{ '--aspect': shape }}>
+      <div className="lightbox__art">
+        <AnimatePresence initial={false}>
+          <motion.div
+            key={piece.id}
+            data-piece={piece.id}
+            className="lightbox__art-layer"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            <Artwork src={piece.image} alt={piece.title} tint={piece.tint} doodle={piece.doodle} />
+          </motion.div>
+        </AnimatePresence>
+      </div>
+    </motion.div>
   )
 }
 

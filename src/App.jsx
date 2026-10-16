@@ -21,6 +21,8 @@ export default function App() {
   const single = useMediaQuery('(max-width: 820px)')
   const [page, setPage] = useState(pageFromHash)
   const [artIndex, setArtIndex] = useState(null)
+  // where the photo was on the page when it was picked up (see Lightbox)
+  const [artFrom, setArtFrom] = useState(null)
   const [merchIndex, setMerchIndex] = useState(0)
   const [favorites, setFavorites] = useState(() => load('pj:favorites', []))
   const [soundOn, setSoundOn] = useState(() => load('pj:sound', false))
@@ -80,9 +82,15 @@ export default function App() {
       return next
     })
 
+  const openArt = useCallback((i, from = null) => {
+    setArtFrom(from)
+    setArtIndex(i)
+  }, [])
+
+  // the photo that's off the page while it's in the lightbox
   const ctx = useMemo(
-    () => ({ openArt: setArtIndex, merchIndex, setMerchIndex }),
-    [merchIndex],
+    () => ({ openArt, liftedArt: artIndex, merchIndex, setMerchIndex }),
+    [openArt, artIndex, merchIndex],
   )
 
   const viewCount = single ? pages.length : pages.length / 2
@@ -135,6 +143,7 @@ export default function App() {
 
         <Lightbox
           index={artIndex}
+          from={artFrom}
           onClose={() => setArtIndex(null)}
           onChange={setArtIndex}
           favorites={favorites}

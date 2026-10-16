@@ -61,9 +61,21 @@
   margin: 0 44px 14px;
 }
 
+/* arrows either side of the art, dots underneath; on phones the arrows
+   drop down beside the dots so the art gets the full width */
 .lightbox__stage {
   position: relative;
-  padding: 0 30px;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-areas:
+    'prev frame next'
+    '.    dots  .';
+  align-items: center;
+  column-gap: 8px;
+}
+
+.lightbox__frame {
+  grid-area: frame;
 }
 
 .lightbox__frame {
@@ -80,22 +92,38 @@
 }
 
 .lightbox .chevron {
+  position: static;
+  translate: none;
   font-size: 16px;
 }
 
 .lightbox .chevron--prev {
-  left: -4px;
+  grid-area: prev;
 }
 
 .lightbox .chevron--next {
-  right: -4px;
+  grid-area: next;
 }
 
 .lightbox__dots {
+  grid-area: dots;
   display: flex;
   justify-content: center;
+  flex-wrap: wrap;
   gap: 6px;
   margin-top: 12px;
+}
+
+@media (max-width: 600px) {
+  .lightbox__stage {
+    grid-template-areas:
+      'frame frame frame'
+      'prev  dots  next';
+  }
+
+  .lightbox .chevron {
+    margin-top: 12px;
+  }
 }
 
 .lightbox__dots span {

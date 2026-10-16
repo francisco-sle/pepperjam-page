@@ -148,7 +148,7 @@
   position: absolute;
   inset: 0;
   overflow: hidden;
-  container-type: inline-size;
+  container: page / inline-size;
   background-color: var(--sheet);
   background-image:
     /* paper grain: an image rather than a CSS filter, so turning stays cheap */

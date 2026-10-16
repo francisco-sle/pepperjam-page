@@ -102,6 +102,13 @@ export function MerchFeatured() {
         <button className="chevron chevron--next" onClick={() => go(1)} aria-label="Next item">
           <ChevronIcon />
         </button>
+
+        {/* only shown on phones, between the arrows (see Merch.css) */}
+        <div className="merch-featured__dots" aria-hidden="true">
+          {merch.map((m, i) => (
+            <span key={m.id} className={i === merchIndex ? 'is-on' : ''} />
+          ))}
+        </div>
       </div>
 
       <Scrap kind="plain" torn={['top', 'bottom']} seed={5} className="merch-featured__card">

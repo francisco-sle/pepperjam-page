@@ -155,6 +155,63 @@
   aspect-ratio: 1 / 1.08;
 }
 
+.merch-featured__dots {
+  display: none;
+}
+
+/* Narrow (phone) pages: the arrows move under the photo, either side of a
+   row of dots, so the photo can use the page's whole width. */
+@container page (max-width: 460px) {
+  .merch-featured__stage {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-rows: minmax(0, 1fr) auto;
+    grid-template-areas:
+      'photo photo photo'
+      'prev  dots  next';
+    row-gap: 0.7em;
+  }
+
+  .merch-featured__photo {
+    grid-area: photo;
+    width: min(94cqw, (100cqh - 2.9em) / 1.08);
+  }
+
+  .merch-featured__stage .chevron {
+    position: static;
+    translate: none;
+  }
+
+  .merch-featured__stage .chevron--prev {
+    grid-area: prev;
+  }
+
+  .merch-featured__stage .chevron--next {
+    grid-area: next;
+  }
+
+  .merch-featured__dots {
+    grid-area: dots;
+    display: flex;
+    justify-content: center;
+    gap: 0.4em;
+  }
+
+  .merch-featured__dots span {
+    width: 0.6em;
+    height: 0.6em;
+    border-radius: 50%;
+    background: var(--paper);
+    border: 2px solid var(--ink);
+    transition: width 0.3s var(--bounce);
+  }
+
+  .merch-featured__dots .is-on {
+    width: 1.4em;
+    border-radius: 999px;
+    background: var(--ink);
+  }
+}
+
 .merch-featured__photo .artwork {
   flex: 1;
   min-height: 0;

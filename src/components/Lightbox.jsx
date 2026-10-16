@@ -96,12 +96,11 @@ export default function Lightbox({ index, onClose, onChange, favorites, onToggle
               <button className="chevron chevron--next" onClick={() => go(1)} aria-label="Next artwork">
                 <Chevron />
               </button>
-            </div>
-
-            <div className="lightbox__dots" aria-hidden="true">
-              {gallery.map((g, i) => (
-                <span key={g.id} className={i === index ? 'is-on' : ''} />
-              ))}
+              <div className="lightbox__dots" aria-hidden="true">
+                {gallery.map((g, i) => (
+                  <span key={g.id} className={i === index ? 'is-on' : ''} />
+                ))}
+              </div>
             </div>
 
             <hr className="dash" />

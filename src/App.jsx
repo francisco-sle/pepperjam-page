@@ -6,7 +6,7 @@ import { SiteContext } from './SiteContext'
 import Book from './components/Book'
 import Tabs from './components/Tabs'
 import SignBoard from './components/SignBoard'
-import Footer from './components/Footer'
+import SideMenu from './components/SideMenu'
 import Scenery from './components/Scenery'
 import Lightbox from './components/Lightbox'
 import useMediaQuery from './hooks/useMediaQuery'
@@ -63,6 +63,16 @@ export default function App() {
     save('pj:sound', soundOn)
   }, [soundOn])
 
+  const toggleSound = () => {
+    const on = !soundOn
+    setSoundOn(on)
+    // a little boop so you can hear it's on (and the browser lets audio start)
+    if (on) {
+      setSoundEnabled(true)
+      playPop(1)
+    }
+  }
+
   const toggleFavorite = (id) =>
     setFavorites((f) => {
       const next = f.includes(id) ? f.filter((x) => x !== id) : [...f, id]
@@ -83,6 +93,7 @@ export default function App() {
       <SiteContext.Provider value={ctx}>
         <Scenery />
         <div className="app">
+          <SideMenu soundOn={soundOn} onToggleSound={toggleSound} />
           <SignBoard section={section} />
 
           <main className="stage">
@@ -95,7 +106,7 @@ export default function App() {
               <Book key={single ? 'single' : 'spread'} pages={pages} page={view} single={single} onNavigate={navigate}>
                 <Tabs sections={sections} current={sectionIndex} onSelect={goToSection} single={single} />
                 <nav className="pager" aria-label="Pages">
-                  <button className="pager__btn" onClick={() => { playPop(0.9); navigate(view - step) }} disabled={viewIndex === 0} aria-label="Previous page">
+                  <button className="pager__btn" onClick={() => navigate(view - step)} disabled={viewIndex === 0} aria-label="Previous page">
                     <Arrow dir={-1} />
                   </button>
                   <div className="pager__dots">
@@ -113,15 +124,13 @@ export default function App() {
                       )
                     })}
                   </div>
-                  <button className="pager__btn" onClick={() => { playPop(1.1); navigate(view + step) }} disabled={viewIndex === viewCount - 1} aria-label="Next page">
+                  <button className="pager__btn" onClick={() => navigate(view + step)} disabled={viewIndex === viewCount - 1} aria-label="Next page">
                     <Arrow dir={1} />
                   </button>
                 </nav>
               </Book>
             </motion.div>
           </main>
-
-          <Footer soundOn={soundOn} onToggleSound={() => setSoundOn((s) => !s)} />
         </div>
 
         <Lightbox

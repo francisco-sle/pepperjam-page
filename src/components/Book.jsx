@@ -364,7 +364,7 @@ function Stack({ side, sheets, placeAt }) {
               zIndex: 100 - depth,
               translate: `${x}px ${y}px`,
               // sheets further down the pile sit in a little more shadow
-              backgroundColor: `color-mix(in srgb, var(--paper), var(--ink) ${depth * 3}%)`,
+              backgroundColor: `color-mix(in srgb, var(--sheet), var(--ink) ${depth * 3}%)`,
               visibility: on ? 'visible' : 'hidden',
             }}
           />

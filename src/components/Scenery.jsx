@@ -1,7 +1,7 @@
 import Doodle from './Doodle'
 import './Scenery.css'
 
-// Warm gingham tablecloth with lace trim, drifting autumn leaves and a few sparkles.
+// Gingham tablecloth with drifting autumn leaves and a few sparkles.
 // Purely decorative and CSS-animated so it stays light.
 const LEAVES = [
   { left: 4, delay: 0, dur: 16, size: 30, kind: 'maple', color: 'var(--rust)' },
@@ -26,8 +26,6 @@ const SPARKLES = [
 export default function Scenery() {
   return (
     <div className="scenery" aria-hidden="true">
-      <div className="scenery__lace scenery__lace--top" />
-
       {SPARKLES.map((s, i) => (
         <Doodle
           key={i}

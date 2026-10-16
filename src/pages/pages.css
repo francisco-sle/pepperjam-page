@@ -1,13 +1,21 @@
 /* Bits shared by every sketchbook page */
 
+/* Page title on a little paper label */
 .page-title {
-  display: flex;
+  align-self: flex-start;
+  display: inline-flex;
   align-items: center;
   gap: 0.35em;
   font-size: 1.6em;
   font-weight: 700;
   line-height: 1.1;
-  margin-bottom: 0.5em;
+  margin-bottom: 0.6em;
+  padding: 0.2em 0.8em 0.2em 0.6em;
+  background: #fffdf8;
+  border: var(--line);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--lift);
+  rotate: -2deg;
 }
 
 .page-title .doodle {

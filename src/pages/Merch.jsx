@@ -3,6 +3,7 @@ import { merch, markets } from '../content/merch'
 import { site } from '../content/site'
 import Artwork from '../components/Artwork'
 import Doodle from '../components/Doodle'
+import { Mount, Scrap } from '../components/Scrapbook'
 import { useSite } from '../SiteContext'
 import { playPop } from '../hooks/sound'
 import './Merch.css'
@@ -12,6 +13,7 @@ export function MerchShelf() {
   return (
     <div className="merch-shelf">
       <section className="card merch-box">
+        <Mount kind="tape" color="var(--cocoa)" />
         <h2 className="pill-label">
           <Doodle kind="basket" size={26} /> Shop shelf
         </h2>
@@ -39,10 +41,17 @@ export function MerchShelf() {
         </div>
       </section>
 
-      <section className="card merch-box merch-box--markets">
-        <h2 className="pill-label">
-          <Doodle kind="sun" size={26} /> Market days
-        </h2>
+      <Scrap
+        kind="lined"
+        torn={['bottom']}
+        seed={11}
+        className="merch-box merch-box--markets"
+        label={
+          <h2 className="pill-label">
+            <Doodle kind="sun" size={26} /> Market days
+          </h2>
+        }
+      >
         <ul className="markets">
           {markets.map((m) => (
             <li key={m.name}>
@@ -54,7 +63,7 @@ export function MerchShelf() {
             </li>
           ))}
         </ul>
-      </section>
+      </Scrap>
     </div>
   )
 }
@@ -83,7 +92,8 @@ export function MerchFeatured() {
             exit={{ opacity: 0, scale: 0.9, rotate: 6 }}
             transition={{ type: 'spring', stiffness: 300, damping: 22 }}
           >
-            <span className="tape" style={{ '--tape': 'var(--mustard)' }} />
+            <Mount kind="corners" color="var(--mustard)" />
+            <Mount kind="clip" />
             <Artwork src={item.image} alt={item.name} tint={item.tint} doodle={item.doodle} label="product photo" />
             {item.limited && <span className="badge badge--rust merch-featured__limited">Limited</span>}
           </motion.figure>
@@ -92,31 +102,38 @@ export function MerchFeatured() {
         <button className="chevron chevron--next" onClick={() => go(1)} aria-label="Next item">
           <ChevronIcon />
         </button>
+
+        {/* only shown on phones, between the arrows (see Merch.css) */}
+        <div className="merch-featured__dots" aria-hidden="true">
+          {merch.map((m, i) => (
+            <span key={m.id} className={i === merchIndex ? 'is-on' : ''} />
+          ))}
+        </div>
       </div>
 
-      <hr className="dash" />
-
-      <AnimatePresence mode="wait" initial={false}>
-        <motion.div
-          key={item.id}
-          className="merch-featured__info"
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -8 }}
-          transition={{ duration: 0.2 }}
-        >
-          <div className="merch-featured__row">
-            <div>
-              <span className="merch-featured__kind">{item.kind}</span>
-              <h3 className="merch-featured__name">{item.name}</h3>
+      <Scrap kind="plain" torn={['top', 'bottom']} seed={5} className="merch-featured__card">
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.div
+            key={item.id}
+            className="merch-featured__info"
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.2 }}
+          >
+            <div className="merch-featured__row">
+              <div>
+                <span className="merch-featured__kind">{item.kind}</span>
+                <h3 className="merch-featured__name">{item.name}</h3>
+              </div>
+              <span className="price">
+                <Doodle kind="coin" size={24} /> ${item.price}
+              </span>
             </div>
-            <span className="price">
-              <Doodle kind="coin" size={24} /> ${item.price}
-            </span>
-          </div>
-          <p className="merch-featured__desc">{item.description}</p>
-        </motion.div>
-      </AnimatePresence>
+            <p className="merch-featured__desc">{item.description}</p>
+          </motion.div>
+        </AnimatePresence>
+      </Scrap>
 
       <a className="game-btn game-btn--rust merch-featured__cta" href={site.shopUrl}>
         <Doodle kind="basket" size={22} /> Get it at the shop

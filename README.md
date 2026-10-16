@@ -23,7 +23,7 @@ To check a production build: `npm run build && npm run preview`.
 - **Tabs:** like a real divider notebook, tabs of sections you've passed move to the left edge.
 - **Gallery:** click a piece to open it in a closer view. You can "heart" favorites (saved in your browser).
 - **Merch:** pick an item on the shelf (or use the yellow arrows) to feature it.
-- **Sound:** the speaker button in the footer turns on the page-turn sounds (off by default).
+- **Sound:** the speaker button at the bottom of the side menu turns on the (soft) page-turn sounds (off by default).
 - On phones the book shows one page at a time, with bookmarks along the top.
 - You can link straight to a section: `#about`, `#gallery`, `#merch`.
 
@@ -66,7 +66,8 @@ src/
     cursors.js         hand-drawn grab / grabbing cursors
     Tabs.jsx           divider tabs
     SignBoard.jsx      wooden title sign (header)
-    Footer.jsx         footer: date, socials, sound
+    SideMenu.jsx       cloud-edged side menu: date, socials, sound
+    Scrapbook.jsx      torn paper scraps and photo mounts (tape, corners, pin, clip)
     Scenery.jsx        pastel checker + lace background with falling leaves
     Lightbox.jsx       artwork close-up
     Doodle.jsx         hand-drawn SVG icons

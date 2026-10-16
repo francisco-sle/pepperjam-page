@@ -1,0 +1,221 @@
+/* Menu bar: one solid color with a puffy cloud edge (the bumps are drawn by
+   ::after: each bump's fill sits on top of a slightly larger ink circle, so
+   neighbouring bumps outline each other and meet in little cusps). */
+.side-menu {
+  --menu: var(--rust);
+  --bump: 28px; /* how far the cloud edge sticks out */
+  grid-area: menu;
+  position: relative;
+  z-index: 30;
+  width: 92px;
+  color: var(--ink);
+  background: var(--menu);
+}
+
+.side-menu::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: calc(100% - 2px);
+  width: var(--bump);
+  pointer-events: none;
+  /* three puffs of different sizes, repeating every 100px */
+  background:
+    radial-gradient(circle at 2px 24px, var(--menu) 22px, transparent 22.5px) 0 0 / 100% 100px repeat-y,
+    radial-gradient(circle at 2px 62px, var(--menu) 17px, transparent 17.5px) 0 0 / 100% 100px repeat-y,
+    radial-gradient(circle at 2px 87px, var(--menu) 13px, transparent 13.5px) 0 0 / 100% 100px repeat-y,
+    radial-gradient(circle at 2px 24px, var(--ink) 24.5px, transparent 25px) 0 0 / 100% 100px repeat-y,
+    radial-gradient(circle at 2px 62px, var(--ink) 19.5px, transparent 20px) 0 0 / 100% 100px repeat-y,
+    radial-gradient(circle at 2px 87px, var(--ink) 15.5px, transparent 16px) 0 0 / 100% 100px repeat-y;
+}
+
+.side-menu__inner {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 22px 4px 18px 10px;
+}
+
+.calendar {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: 70px;
+  font-weight: 500;
+  font-size: 14px;
+  text-align: center;
+  background: var(--paper);
+  border: var(--line);
+  border-radius: 16px;
+  overflow: hidden;
+  rotate: -3deg;
+}
+
+.calendar__day {
+  display: flex;
+  flex-direction: column;
+  padding: 4px 4px 2px;
+  line-height: 1.05;
+}
+
+.calendar__day b {
+  font-weight: 700;
+  font-size: 26px;
+}
+
+.calendar__weekday {
+  font-size: 13px;
+  color: var(--ink-soft);
+}
+
+.calendar__season {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 3px 4px;
+  font-size: 12px;
+  background: var(--mustard-light);
+  border-top: var(--line);
+}
+
+.socials {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.socials__link {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  color: var(--ink);
+  background: var(--paper);
+  border: var(--line);
+  border-radius: 50%;
+  box-shadow: 0 3px 0 rgb(107 74 54 / 0.25);
+  transition: transform 0.2s var(--bounce), background 0.2s;
+}
+
+.socials__link:hover {
+  transform: translateY(-3px) rotate(-6deg);
+}
+
+.socials__link:nth-child(1):hover { background: var(--cocoa-light); }
+.socials__link:nth-child(2):hover { background: var(--matcha-light); }
+.socials__link:nth-child(3):hover { background: var(--mustard-light); }
+.socials__link:nth-child(4):hover { background: var(--peach-light); }
+
+.side-menu__end {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.sound-toggle {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  color: var(--ink);
+  background: rgb(255 250 243 / 0.45);
+  border: 2.5px dashed var(--ink);
+  border-radius: 50%;
+  transition: background 0.2s, color 0.2s;
+}
+
+.sound-toggle.is-on {
+  background: var(--mustard);
+  border-style: solid;
+}
+
+.side-menu__copy {
+  writing-mode: vertical-rl;
+  rotate: 180deg;
+  font-weight: 500;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+/* Phones: a bar along the bottom with the cloud edge on top */
+@media (max-width: 820px) {
+  .side-menu {
+    --bump: 18px;
+    width: auto;
+  }
+
+  .side-menu::after {
+    inset: auto 0 calc(100% - 2px) 0;
+    width: auto;
+    height: var(--bump);
+    background:
+      radial-gradient(circle at 20px calc(100% - 2px), var(--menu) 14px, transparent 14.5px) 0 0 / 46px 100% repeat-x,
+      radial-gradient(circle at 0 calc(100% - 2px), var(--menu) 10px, transparent 10.5px) 0 0 / 46px 100% repeat-x,
+      radial-gradient(circle at 46px calc(100% - 2px), var(--menu) 10px, transparent 10.5px) 0 0 / 46px 100% repeat-x,
+      radial-gradient(circle at 20px calc(100% - 2px), var(--ink) 16.5px, transparent 17px) 0 0 / 46px 100% repeat-x,
+      radial-gradient(circle at 0 calc(100% - 2px), var(--ink) 12.5px, transparent 13px) 0 0 / 46px 100% repeat-x,
+      radial-gradient(circle at 46px calc(100% - 2px), var(--ink) 12.5px, transparent 13px) 0 0 / 46px 100% repeat-x;
+  }
+
+  .side-menu__inner {
+    flex-direction: row;
+    padding: 4px 14px 8px;
+    gap: 8px;
+  }
+
+  .calendar {
+    flex-direction: row;
+    width: auto;
+    rotate: none;
+    border-radius: 999px;
+  }
+
+  .calendar__day {
+    flex-direction: row;
+    align-items: baseline;
+    gap: 3px;
+    padding: 2px 8px;
+  }
+
+  .calendar__day b {
+    font-size: 15px;
+  }
+
+  .calendar__season {
+    border-top: 0;
+    border-left: var(--line);
+  }
+
+  .calendar__season span,
+  .side-menu__copy {
+    display: none;
+  }
+
+  .socials {
+    flex-direction: row;
+    gap: 8px;
+  }
+
+  .socials__link {
+    width: 36px;
+    height: 36px;
+  }
+
+  .side-menu__end {
+    flex-direction: row;
+  }
+
+  .sound-toggle {
+    width: 36px;
+    height: 36px;
+  }
+}

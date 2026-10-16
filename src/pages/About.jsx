@@ -1,6 +1,7 @@
 import { about } from '../content/about'
 import Artwork from '../components/Artwork'
 import Doodle from '../components/Doodle'
+import { Mount, Scrap } from '../components/Scrapbook'
 import './About.css'
 
 export function AboutPortrait() {
@@ -10,11 +11,13 @@ export function AboutPortrait() {
         <Doodle kind="jar" size={30} /> About me
       </h2>
       <figure className="polaroid polaroid--big">
-        <span className="tape" style={{ '--tape': 'var(--matcha)' }} />
+        <Mount kind="corners" color="var(--matcha)" />
+        <Mount kind="tape" color="var(--cocoa)" />
         <Artwork src={about.image} alt="Portrait of Pepperjam" tint="peach" doodle="jar" label="your photo here" />
         <figcaption>{about.portraitCaption}</figcaption>
       </figure>
-      <Doodle kind="frog" size={56} className="sticker sticker--frog" />
+      <Doodle kind="frog" size={56} sticker className="sticker sticker--frog" />
+      <Doodle kind="strawberry" size={40} sticker className="sticker sticker--berry" />
       <Doodle kind="sparkle" size={26} className="sticker sticker--spark1" />
       <Doodle kind="sparkle" size={18} className="sticker sticker--spark2" />
     </div>
@@ -24,17 +27,22 @@ export function AboutPortrait() {
 export function AboutBio() {
   return (
     <div className="about-bio">
-      <div className="dialogue">
-        <div className="dialogue__head">
-          <span className="name-plate">{about.name}</span>
-          <span className="dialogue__role">{about.role}</span>
-        </div>
+      <Scrap
+        kind="grid"
+        torn={['top']}
+        seed={7}
+        className="dialogue"
+        label={
+          <div className="dialogue__head">
+            <span className="name-plate">{about.name}</span>
+            <span className="dialogue__role">{about.role}</span>
+          </div>
+        }
+      >
         <h3 className="dialogue__greeting">{about.greeting}</h3>
         {about.bio.map((p) => (
           <p key={p.slice(0, 16)} className="dialogue__text">{p}</p>
         ))}
-
-        <hr className="dash" />
 
         <ul className="skills" aria-label="Skills">
           {about.skills.map((s) => (
@@ -57,7 +65,7 @@ export function AboutBio() {
             </div>
           ))}
         </dl>
-      </div>
+      </Scrap>
 
       <a className="game-btn game-btn--rust about-cta" href={about.cta.href}>
         <Doodle kind="heart" size={22} /> {about.cta.label}

@@ -108,3 +108,43 @@ export function playPop(pitch = 1) {
     osc.stop(t + 0.25)
   })
 }
+
+// A photo coming unstuck from the page: a short, papery "fft" that brightens
+// as it peels away.
+export function playPeel() {
+  whenReady((ac, t) => {
+    const dur = 0.24
+    const src = ac.createBufferSource()
+    src.buffer = paperNoise(ac)
+    src.playbackRate.value = 1.3 + Math.random() * 0.2
+    const filter = ac.createBiquadFilter()
+    filter.type = 'bandpass'
+    filter.Q.value = 0.9
+    filter.frequency.setValueAtTime(700, t)
+    filter.frequency.exponentialRampToValueAtTime(1900, t + dur)
+    const gain = ac.createGain()
+    gain.gain.setValueAtTime(0.0001, t)
+    gain.gain.exponentialRampToValueAtTime(0.14, t + 0.05)
+    gain.gain.exponentialRampToValueAtTime(0.0001, t + dur)
+    src.connect(filter).connect(gain).connect(bus)
+    src.start(t, Math.random() * 0.4)
+    src.stop(t + dur + 0.05)
+  })
+}
+
+// The photo pressed back down: a soft, low pat.
+export function playPat() {
+  whenReady((ac, t) => {
+    const osc = ac.createOscillator()
+    osc.type = 'sine'
+    osc.frequency.setValueAtTime(190, t)
+    osc.frequency.exponentialRampToValueAtTime(110, t + 0.09)
+    const gain = ac.createGain()
+    gain.gain.setValueAtTime(0.0001, t)
+    gain.gain.exponentialRampToValueAtTime(0.18, t + 0.008)
+    gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.16)
+    osc.connect(gain).connect(bus)
+    osc.start(t)
+    osc.stop(t + 0.2)
+  })
+}

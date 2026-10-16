@@ -105,3 +105,28 @@
   width: 1.4em;
   border-radius: 999px;
 }
+
+/* While a photo is in the lightbox, its spot on the page is empty: just a
+   faint mark where it was, and whatever held it down. */
+.gallery-item.is-lifted,
+.gallery-item.is-lifted:hover {
+  background: rgb(107 74 54 / 0.05);
+  border: 2px dashed rgb(107 74 54 / 0.22);
+  box-shadow: none;
+}
+
+.gallery-item.is-lifted > .artwork,
+.gallery-item.is-lifted > .polaroid__caption {
+  visibility: hidden;
+}
+
+/* the pin is pulled out to take the photo off, and pushed back in after */
+.gallery-item .push-pin {
+  transition: translate 0.3s var(--bounce), opacity 0.15s;
+}
+
+.gallery-item.is-lifted .push-pin {
+  translate: -50% -80%;
+  opacity: 0;
+  transition: translate 0.16s ease-in, opacity 0.16s 0.06s;
+}

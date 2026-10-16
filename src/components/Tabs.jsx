@@ -44,7 +44,7 @@ export default function Tabs({ sections, current, onSelect, single }) {
               role="tab"
               aria-selected={active}
               className={`tab tab--${side} tab--${s.color} ${active ? 'is-active' : ''}`}
-              style={{ top: `calc(9% + ${i} * max(12%, 60px))` }}
+              style={{ top: `calc(9% + ${i} * 68px)` }}
               onClick={() => onSelect(i)}
               initial={{ x: -70 * out, opacity: 0 }}
               animate={{
@@ -56,7 +56,7 @@ export default function Tabs({ sections, current, onSelect, single }) {
               whileHover={{ x: (active ? 14 : 8) * out }}
               whileTap={{ scale: 0.95 }}
             >
-              <span className="tab__icon"><Doodle kind={s.icon} size={22} /></span>
+              <span className="tab__icon"><Doodle kind={s.icon} size={26} /></span>
               <span className="tab__label">{s.label}</span>
             </motion.button>
           )

@@ -33,7 +33,7 @@
 
 /* Spread: as big as the screen allows, leaving room for the side tabs */
 .book--spread {
-  width: min(1440px, 100cqw - 330px, 100cqh * 1.62);
+  width: min(1440px, 100cqw - 380px, 100cqh * 1.62);
   aspect-ratio: 1.62;
 }
 

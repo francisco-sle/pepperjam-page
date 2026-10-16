@@ -4,6 +4,7 @@ import Artwork from '../components/Artwork'
 import Doodle from '../components/Doodle'
 import { Mount, Scrap } from '../components/Scrapbook'
 import { useSite } from '../SiteContext'
+import { useI18n } from '../i18n'
 import { playPeel } from '../hooks/sound'
 import { measurePhoto } from '../components/photoLift'
 import './Gallery.css'
@@ -34,11 +35,6 @@ const STICKERS = {
   ],
 }
 
-const NOTES = [
-  { left: 'vol. 1 ~ summer on the farm', right: 'click any doodle to take a closer look!' },
-  { left: 'vol. 2 ~ cozy little evenings', right: 'more pages coming as the sketchbook fills up' },
-]
-
 export const gallerySpreadCount = Math.ceil(gallery.length / PIECES_PER_SPREAD)
 
 /**
@@ -63,10 +59,13 @@ export function artAspect(index) {
 
 export default function GalleryPage({ spread, side }) {
   const { openArt, liftedArt } = useSite()
+  const { t } = useI18n()
   const start = spread * PIECES_PER_SPREAD + (side === 'right' ? LAYOUT.left.length : 0)
   const slots = LAYOUT[side === 'right' ? 'right' : 'left']
   const stickers = STICKERS[side === 'right' ? 'right' : 'left']
-  const note = NOTES[spread % NOTES.length]
+  // the handwritten notes (gallery.notes) take turns, one per spread
+  const notes = t('gallery.notes')
+  const note = notes[spread % notes.length]
 
   return (
     <div className={`gallery-page gallery-page--${side === 'right' ? 'right' : 'left'}`}>
@@ -74,6 +73,7 @@ export default function GalleryPage({ spread, side }) {
         const index = start + i
         const piece = gallery[index]
         if (!piece) return null
+        const title = t(`gallery.items.${piece.id}.title`)
         return (
           <motion.button
             key={piece.id}
@@ -91,11 +91,11 @@ export default function GalleryPage({ spread, side }) {
             whileTap={{ scale: 0.97 }}
             transition={{ type: 'spring', stiffness: 400, damping: 18 }}
             onClick={(e) => { playPeel(); openArt(index, measurePhoto(e.currentTarget)) }}
-            aria-label={`Open “${piece.title}”`}
+            aria-label={t('gallery.open', { title })}
           >
             <Mount kind={slot.mount} color={slot.color} />
-            <Artwork src={piece.image} alt={piece.title} tint={piece.tint} doodle={piece.doodle} label={null} />
-            <span className="polaroid__caption">{piece.title}</span>
+            <Artwork src={piece.image} alt={title} tint={piece.tint} doodle={piece.doodle} label={null} />
+            <span className="polaroid__caption">{title}</span>
           </motion.button>
         )
       })}

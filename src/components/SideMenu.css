@@ -203,3 +203,42 @@
     height: 36px;
   }
 }
+
+/* Narrow phones: tighten everything so the date, socials, language and
+   sound all fit on one row (the calendar keeps just the day) */
+@media (max-width: 440px) {
+  .side-menu__inner,
+  .side-menu__end {
+    gap: 6px;
+    padding-inline: 10px;
+  }
+
+  .side-menu__end {
+    padding-inline: 0;
+  }
+
+  .calendar__season {
+    display: none;
+  }
+
+  .socials {
+    gap: 5px;
+  }
+
+  .socials__link,
+  .sound-toggle {
+    width: 32px;
+    height: 32px;
+  }
+
+  .socials__link svg {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+@media (max-width: 340px) {
+  .calendar__weekday {
+    display: none;
+  }
+}

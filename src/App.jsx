@@ -12,6 +12,7 @@ import Lightbox from './components/Lightbox'
 import useMediaQuery from './hooks/useMediaQuery'
 import { load, save } from './hooks/storage'
 import { setSoundEnabled, playPop } from './hooks/sound'
+import { useI18n } from './i18n'
 import './App.css'
 
 const firstPageOf = (sectionId) => Math.max(0, pages.findIndex((p) => p.section === sectionId))
@@ -19,6 +20,7 @@ const pageFromHash = () => firstPageOf(window.location.hash.replace('#', '') || 
 
 export default function App() {
   const single = useMediaQuery('(max-width: 820px)')
+  const { t } = useI18n()
   const [page, setPage] = useState(pageFromHash)
   const [artIndex, setArtIndex] = useState(null)
   // where the photo was on the page when it was picked up (see Lightbox)
@@ -113,8 +115,8 @@ export default function App() {
             >
               <Book key={single ? 'single' : 'spread'} pages={pages} page={view} single={single} onNavigate={navigate}>
                 <Tabs sections={sections} current={sectionIndex} onSelect={goToSection} single={single} />
-                <nav className="pager" aria-label="Pages">
-                  <button className="pager__btn" onClick={() => navigate(view - step)} disabled={viewIndex === 0} aria-label="Previous page">
+                <nav className="pager" aria-label={t('pager.label')}>
+                  <button className="pager__btn" onClick={() => navigate(view - step)} disabled={viewIndex === 0} aria-label={t('pager.prev')}>
                     <Arrow dir={-1} />
                   </button>
                   <div className="pager__dots">
@@ -126,13 +128,13 @@ export default function App() {
                           key={i}
                           className={`pager__dot dot--${s.color} ${i === viewIndex ? 'is-on' : ''}`}
                           onClick={() => navigate(p)}
-                          aria-label={`${s.label}, page ${p + 1}`}
+                          aria-label={t('pager.dot', { section: t(`sections.${s.id}`), page: p + 1 })}
                           aria-current={i === viewIndex ? 'page' : undefined}
                         />
                       )
                     })}
                   </div>
-                  <button className="pager__btn" onClick={() => navigate(view + step)} disabled={viewIndex === viewCount - 1} aria-label="Next page">
+                  <button className="pager__btn" onClick={() => navigate(view + step)} disabled={viewIndex === viewCount - 1} aria-label={t('pager.next')}>
                     <Arrow dir={1} />
                   </button>
                 </nav>

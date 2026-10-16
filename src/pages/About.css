@@ -99,9 +99,11 @@
   font-family: var(--font-hand);
   font-size: 1.2em;
   color: var(--ink-soft);
+  line-height: 1.2;
   background: #fffdf9;
-  padding: 0 0.3em;
-  border-radius: 6px;
+  padding: 0 0.6em;
+  border: var(--line);
+  border-radius: 999px;
 }
 
 .dialogue__greeting {

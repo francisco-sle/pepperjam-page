@@ -1,0 +1,122 @@
+{
+  "meta": {
+    "title": "Pepperjam",
+    "description": "Pepperjam — cozy countryside illustrations, stickers and prints."
+  },
+  "site": {
+    "tagline": "cozy little drawings from the countryside",
+    "copyright": "© {year} {name}"
+  },
+  "sections": {
+    "about": "About me",
+    "gallery": "Gallery",
+    "merch": "Merch",
+    "tabs": "Sketchbook sections"
+  },
+  "pager": {
+    "label": "Pages",
+    "prev": "Previous page",
+    "next": "Next page",
+    "dot": "{section}, page {page}"
+  },
+  "menu": {
+    "seasons": {
+      "winter": "Winter",
+      "spring": "Spring",
+      "summer": "Summer",
+      "fall": "Fall"
+    },
+    "socials": "Social links",
+    "social": {
+      "instagram": "Instagram",
+      "tiktok": "TikTok",
+      "bluesky": "Bluesky",
+      "mail": "Email"
+    },
+    "sounds": "Page sounds",
+    "soundOn": "Sound on",
+    "soundOff": "Sound off",
+    "language": "Language"
+  },
+  "artwork": {
+    "comingSoon": "art coming soon"
+  },
+  "about": {
+    "portraitAlt": "Portrait of Pepperjam",
+    "portraitLabel": "your photo here",
+    "portraitCaption": "me, probably drawing a frog",
+    "role": "Illustrator & sticker farmer",
+    "greeting": "Howdy! I'm Pepperjam.",
+    "bio": [
+      "I draw cozy critters, tiny gardens and snacks that look a little too happy to be eaten. Most of my work starts as a doodle in a sketchbook just like this one.",
+      "When I'm not drawing I'm usually tending tomatoes, making jam, or playing farming games until 2am. Take a look around, and feel free to say hi!"
+    ],
+    "skillsLabel": "Skills",
+    "hearts": "{count} out of {max}",
+    "skills": {
+      "illustration": "Illustration",
+      "characters": "Character design",
+      "stickers": "Stickers & prints",
+      "comics": "Comics"
+    },
+    "facts": {
+      "crop": { "label": "Fav. crop", "value": "Strawberries" },
+      "season": { "label": "Season", "value": "Fall" },
+      "tools": { "label": "Tools", "value": "Procreate, gouache" }
+    },
+    "cta": "Commissions open!",
+    "ctaSubject": "Commission request"
+  },
+  "gallery": {
+    "open": "Open “{title}”",
+    "notes": [
+      { "left": "vol. 1 ~ summer on the farm", "right": "click any doodle to take a closer look!" },
+      { "left": "vol. 2 ~ cozy little evenings", "right": "more pages coming as the sketchbook fills up" }
+    ],
+    "items": {
+      "g1": { "title": "Strawberry Field Nap", "medium": "Procreate", "note": "Bunny + strawberries = a very good afternoon." },
+      "g2": { "title": "Jam Jar Season", "medium": "Gouache", "note": "Painted while the actual jam was boiling over." },
+      "g3": { "title": "Pepper the Frog", "medium": "Ink & watercolor", "note": "My sketchbook mascot. He judges every page." },
+      "g4": { "title": "Saturday Market", "medium": "Procreate", "note": "Everything at the market, but make it tiny." },
+      "g5": { "title": "Mushroom Picnic", "medium": "Colored pencil", "note": "A picnic for very small guests." },
+      "g6": { "title": "Rainy Greenhouse", "medium": "Gouache", "note": "Rain on glass is the best soundtrack." },
+      "g7": { "title": "Chicken Coop Gossip", "medium": "Procreate", "note": "They know everything that happens on the farm." },
+      "g8": { "title": "Sunflower Delivery", "medium": "Watercolor", "note": "Special delivery for whoever needs it today." },
+      "g9": { "title": "Hot Pepper Club", "medium": "Ink", "note": "Members only. Spicy members only." },
+      "g10": { "title": "Starry Barn", "medium": "Procreate", "note": "Night shift on the farm." }
+    }
+  },
+  "lightbox": {
+    "close": "Close",
+    "prev": "Previous artwork",
+    "next": "Next artwork",
+    "addFavorite": "Add to favorites",
+    "removeFavorite": "Remove from favorites"
+  },
+  "merch": {
+    "shelf": "Shop shelf",
+    "itemsLabel": "Merch items",
+    "slot": "{name}, {price}",
+    "limited": "Limited",
+    "productPhoto": "product photo",
+    "prev": "Previous item",
+    "next": "Next item",
+    "shopCta": "Get it at the shop",
+    "marketsTitle": "Market days",
+    "items": {
+      "m1": { "name": "Frog Sticker Sheet", "kind": "Sticker sheet", "description": "Eight glossy frogs in various states of relaxation. Waterproof, so they can live on your water bottle." },
+      "m2": { "name": "Strawberry Bunny Print", "kind": "A5 art print", "description": "Printed on thick textured paper that feels like a real sketchbook page." },
+      "m3": { "name": "Jam Jar Charm", "kind": "Acrylic charm", "description": "Double-sided acrylic charm with a tiny golden clasp. Smells like nothing, sadly." },
+      "m4": { "name": "Mushroom Pin", "kind": "Enamel pin", "description": "Hard enamel with gold lining and two rubber backs, so it stays put." },
+      "m5": { "name": "Pepper Tote Bag", "kind": "Canvas tote", "description": "Sturdy cotton canvas, big enough for a whole market haul." },
+      "m6": { "name": "Sprout Notebook", "kind": "Dot-grid notebook", "description": "A5, 120 dot-grid pages and a cover you won't want to scribble on (but you can)." },
+      "m7": { "name": "Starry Barn Postcard", "kind": "Postcard set", "description": "Set of 4 postcards. Send one to someone you miss." },
+      "m8": { "name": "Chick Washi Tape", "kind": "Washi tape", "description": "15mm washi tape with tiny chicks marching in a line." }
+    },
+    "markets": {
+      "harvest-moon": { "name": "Harvest Moon Market", "place": "Town square, 10am–4pm" },
+      "cozy-craft": { "name": "Cozy Craft Fair", "place": "Community hall, 12–6pm" },
+      "winter-star": { "name": "Winter Star Bazaar", "place": "Old greenhouse, 11am–5pm" }
+    }
+  }
+}

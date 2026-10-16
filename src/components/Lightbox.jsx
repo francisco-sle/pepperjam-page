@@ -6,6 +6,7 @@ import Artwork from './Artwork'
 import Doodle from './Doodle'
 import { findPhoto, measureFrame, measurePhoto } from './photoLift'
 import { playPat, playPop } from '../hooks/sound'
+import { useI18n } from '../i18n'
 import './Lightbox.css'
 
 // A closer look at one artwork, styled like the item card in the main reference.
@@ -22,6 +23,7 @@ export default function Lightbox({ index, from, onClose, onChange, favorites, on
   // the photo in the air: { dir: 'in' | 'out', from, to, piece }
   const [flight, setFlight] = useState(null)
   const closeAfterLanding = useRef(false)
+  const { t } = useI18n()
 
   // the print in the card (while flipping, the previous one is still on its
   // way out in there too)
@@ -86,6 +88,8 @@ export default function Lightbox({ index, from, onClose, onChange, favorites, on
   })
 
   const piece = open ? gallery[index] : null
+  // its title, medium and note
+  const text = piece && t(`gallery.items.${piece.id}`)
   // the picture keeps the shape it has in the book (the card grows to fit)
   const aspect = useMemo(() => (open && artAspect(index)) || 4 / 3, [open, index])
   // counts openings, so each one starts with a fresh frame already the right
@@ -134,7 +138,7 @@ export default function Lightbox({ index, from, onClose, onChange, favorites, on
               onClick={(e) => e.stopPropagation()}
             >
               <span className="lightbox__ticket" aria-hidden="true" />
-              <button ref={closeRef} className="lightbox__close" onClick={close} aria-label="Close">
+              <button ref={closeRef} className="lightbox__close" onClick={close} aria-label={t('lightbox.close')}>
                 <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 5 L15 15 M15 5 L5 15" /></svg>
               </button>
 
@@ -148,12 +152,12 @@ export default function Lightbox({ index, from, onClose, onChange, favorites, on
                   exit={{ opacity: 0, y: -6 }}
                   transition={{ duration: 0.15 }}
                 >
-                  {piece.title}
+                  {text.title}
                 </motion.h2>
               </AnimatePresence>
 
               <div className="lightbox__stage">
-                <button className="chevron chevron--prev" onClick={() => go(-1)} aria-label="Previous artwork">
+                <button className="chevron chevron--prev" onClick={() => go(-1)} aria-label={t('lightbox.prev')}>
                   <Chevron />
                 </button>
                 <div
@@ -161,9 +165,9 @@ export default function Lightbox({ index, from, onClose, onChange, favorites, on
                   // the flying photo stands in for the frame until it lands
                   style={{ visibility: flight ? 'hidden' : undefined }}
                 >
-                  <Frame key={session.current} piece={piece} aspect={aspect} />
+                  <Frame key={session.current} piece={piece} title={text.title} aspect={aspect} />
                 </div>
-                <button className="chevron chevron--next" onClick={() => go(1)} aria-label="Next artwork">
+                <button className="chevron chevron--next" onClick={() => go(1)} aria-label={t('lightbox.next')}>
                   <Chevron />
                 </button>
                 <div className="lightbox__dots" aria-hidden="true">
@@ -181,14 +185,14 @@ export default function Lightbox({ index, from, onClose, onChange, favorites, on
                   <Doodle kind={piece.doodle} size={44} />
                 </div>
                 <div className="lightbox__text">
-                  <span className="lightbox__medium">{piece.medium}</span>
-                  <p className="hand">{piece.note}</p>
+                  <span className="lightbox__medium">{text.medium}</span>
+                  <p className="hand">{text.note}</p>
                 </div>
                 <motion.button
                   className={`fav ${fav ? 'is-fav' : ''}`}
                   onClick={() => { playPop(fav ? 0.8 : 1.5); onToggleFavorite(piece.id) }}
                   aria-pressed={fav}
-                  aria-label={fav ? 'Remove from favorites' : 'Add to favorites'}
+                  aria-label={t(fav ? 'lightbox.removeFavorite' : 'lightbox.addFavorite')}
                   whileTap={{ scale: 0.8 }}
                   animate={fav ? { scale: [1, 1.3, 1] } : { scale: 1 }}
                 >
@@ -211,7 +215,7 @@ export default function Lightbox({ index, from, onClose, onChange, favorites, on
  * takes up the room the print needs and eases between shapes, so the card
  * grows and shrinks smoothly instead of jumping.
  */
-function Frame({ piece, aspect }) {
+function Frame({ piece, title, aspect }) {
   const shape = useMotionValue(aspect)
   useEffect(() => {
     const resize = animate(shape, aspect, { duration: 0.35, ease: [0.3, 0, 0.2, 1] })
@@ -235,7 +239,7 @@ function Frame({ piece, aspect }) {
           transition={{ type: 'spring', stiffness: 300, damping: 22 }}
         >
           <div className="lightbox__art">
-            <Artwork src={piece.image} alt={piece.title} tint={piece.tint} doodle={piece.doodle} />
+            <Artwork src={piece.image} alt={title} tint={piece.tint} doodle={piece.doodle} />
           </div>
         </motion.div>
       </AnimatePresence>
@@ -287,6 +291,7 @@ const px = (v) => `${v}px`
  */
 function Flyer({ flight, onDone }) {
   const { dir, piece } = flight
+  const { t } = useI18n()
   const photo = dir === 'in' ? flight.from : flight.to
   const frame = dir === 'in' ? flight.to : flight.from
   const peel = PEEL[photo.mount] ?? PEEL.tape
@@ -402,13 +407,13 @@ function Flyer({ flight, onDone }) {
                   className="flyer__label"
                   style={{ height: mv.labelH, marginTop: mv.labelM, opacity: mv.label }}
                 >
-                  <span className="artwork__label">art coming soon</span>
+                  <span className="artwork__label">{t('artwork.comingSoon')}</span>
                 </motion.span>
               </>
             )}
           </div>
           <motion.span className="polaroid__caption" style={{ height: mv.captionH, opacity: mv.caption }}>
-            {piece.title}
+            {t(`gallery.items.${piece.id}.title`)}
           </motion.span>
         </motion.div>
       </motion.div>

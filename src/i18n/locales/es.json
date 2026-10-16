@@ -1,0 +1,122 @@
+{
+  "meta": {
+    "title": "Pepperjam",
+    "description": "Pepperjam — ilustraciones, stickers y láminas acogedoras desde el campo."
+  },
+  "site": {
+    "tagline": "dibujitos acogedores desde el campo",
+    "copyright": "© {year} {name}"
+  },
+  "sections": {
+    "about": "Sobre mí",
+    "gallery": "Galería",
+    "merch": "Tienda",
+    "tabs": "Secciones del cuaderno"
+  },
+  "pager": {
+    "label": "Páginas",
+    "prev": "Página anterior",
+    "next": "Página siguiente",
+    "dot": "{section}, página {page}"
+  },
+  "menu": {
+    "seasons": {
+      "winter": "Invierno",
+      "spring": "Primavera",
+      "summer": "Verano",
+      "fall": "Otoño"
+    },
+    "socials": "Redes sociales",
+    "social": {
+      "instagram": "Instagram",
+      "tiktok": "TikTok",
+      "bluesky": "Bluesky",
+      "mail": "Correo"
+    },
+    "sounds": "Sonido de las páginas",
+    "soundOn": "Sonido activado",
+    "soundOff": "Sonido desactivado",
+    "language": "Idioma"
+  },
+  "artwork": {
+    "comingSoon": "arte muy pronto"
+  },
+  "about": {
+    "portraitAlt": "Retrato de Pepperjam",
+    "portraitLabel": "aquí va tu foto",
+    "portraitCaption": "yo, seguro dibujando ranas",
+    "role": "Ilustradora y sticker farmer",
+    "greeting": "¡Hola! Soy Pepperjam.",
+    "bio": [
+      "Dibujo animalitos acogedores, jardines diminutos y antojitos demasiado felices para comérselos. Casi todo empieza como un garabato en un cuaderno igualito a este.",
+      "Cuando no dibujo, estoy cuidando tomates, haciendo mermelada o desvelándome con juegos de granja. ¡Date una vuelta y salúdame!"
+    ],
+    "skillsLabel": "Habilidades",
+    "hearts": "{count} de {max}",
+    "skills": {
+      "illustration": "Ilustración",
+      "characters": "Diseño de personajes",
+      "stickers": "Stickers y láminas",
+      "comics": "Cómics"
+    },
+    "facts": {
+      "crop": { "label": "Cultivo fav.", "value": "Fresas" },
+      "season": { "label": "Estación", "value": "Otoño" },
+      "tools": { "label": "Herramientas", "value": "Procreate, gouache" }
+    },
+    "cta": "¡Comisiones abiertas!",
+    "ctaSubject": "Solicitud de comisión"
+  },
+  "gallery": {
+    "open": "Abrir “{title}”",
+    "notes": [
+      { "left": "vol. 1 ~ verano en la granja", "right": "¡haz clic en cualquier dibujo para verlo de cerca!" },
+      { "left": "vol. 2 ~ tardecitas acogedoras", "right": "vienen más páginas conforme se llene el cuaderno" }
+    ],
+    "items": {
+      "g1": { "title": "Siesta en el fresal", "medium": "Procreate", "note": "Conejito + fresas = una tarde buenísima." },
+      "g2": { "title": "Mermelada casera", "medium": "Gouache", "note": "Lo pinté mientras la mermelada de verdad se desbordaba." },
+      "g3": { "title": "Pepper, la rana", "medium": "Tinta y acuarela", "note": "La mascota de mi cuaderno. Juzga cada página." },
+      "g4": { "title": "Mercado de sábado", "medium": "Procreate", "note": "Todo lo del mercado, pero en miniatura." },
+      "g5": { "title": "Picnic de hongos", "medium": "Lápices de colores", "note": "Un picnic para invitados muy pequeñitos." },
+      "g6": { "title": "Invernadero lluvioso", "medium": "Gouache", "note": "La lluvia en el vidrio es la mejor banda sonora." },
+      "g7": { "title": "Chismes del gallinero", "medium": "Procreate", "note": "Se enteran de todo lo que pasa en la granja." },
+      "g8": { "title": "Entrega de girasoles", "medium": "Acuarela", "note": "Entrega especial para quien la necesite hoy." },
+      "g9": { "title": "Club de chiles picosos", "medium": "Tinta", "note": "Solo miembros. Solo miembros picositos." },
+      "g10": { "title": "Granero estrellado", "medium": "Procreate", "note": "Turno de noche en la granja." }
+    }
+  },
+  "lightbox": {
+    "close": "Cerrar",
+    "prev": "Obra anterior",
+    "next": "Obra siguiente",
+    "addFavorite": "Agregar a favoritos",
+    "removeFavorite": "Quitar de favoritos"
+  },
+  "merch": {
+    "shelf": "La tiendita",
+    "itemsLabel": "Productos",
+    "slot": "{name}, {price}",
+    "limited": "Limitado",
+    "productPhoto": "foto del producto",
+    "prev": "Producto anterior",
+    "next": "Producto siguiente",
+    "shopCta": "Consíguelo en la tienda",
+    "marketsTitle": "Días de mercado",
+    "items": {
+      "m1": { "name": "Hoja de stickers de ranas", "kind": "Hoja de stickers", "description": "Ocho ranas brillantes en distintos estados de relajación. A prueba de agua, así que pueden vivir en tu termo." },
+      "m2": { "name": "Lámina Conejito de fresa", "kind": "Lámina A5", "description": "Impresa en papel grueso con textura, que se siente como una página de cuaderno de verdad." },
+      "m3": { "name": "Charm Frasco de mermelada", "kind": "Charm de acrílico", "description": "Charm de acrílico de dos caras con un broche dorado diminuto. Lamentablemente, no huele a nada." },
+      "m4": { "name": "Pin de hongo", "kind": "Pin de esmalte", "description": "Esmalte duro con contorno dorado y dos traseras de goma, para que no se mueva." },
+      "m5": { "name": "Tote bag de chile", "kind": "Tote de lona", "description": "Lona de algodón resistente, con espacio para todo lo que compres en el mercado." },
+      "m6": { "name": "Libreta Brotecito", "kind": "Libreta de puntos", "description": "A5, 120 páginas punteadas y una portada que no vas a querer rayar (pero puedes)." },
+      "m7": { "name": "Postal Granero estrellado", "kind": "Set de postales", "description": "Set de 4 postales. Mándale una a alguien que extrañes." },
+      "m8": { "name": "Washi tape de pollitos", "kind": "Washi tape", "description": "Washi tape de 15 mm con pollitos marchando en fila." }
+    },
+    "markets": {
+      "harvest-moon": { "name": "Mercado Luna de Cosecha", "place": "Plaza principal, 10:00–16:00" },
+      "cozy-craft": { "name": "Feria Artesanal Acogedora", "place": "Salón comunitario, 12:00–18:00" },
+      "winter-star": { "name": "Bazar Estrella de Invierno", "place": "Invernadero viejo, 11:00–17:00" }
+    }
+  }
+}

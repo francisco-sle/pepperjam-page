@@ -4,6 +4,9 @@
 @import '@fontsource/fredoka/700.css';
 @import '@fontsource/gaegu/latin-400.css';
 @import '@fontsource/gaegu/latin-700.css';
+/* Gaegu has no accented letters (á, ñ, ¿…): Patrick Hand fills those in for
+   Spanish. The browser only downloads it when a note needs one. */
+@import '@fontsource/patrick-hand/latin-400.css';
 
 /*
   Design system — one look everywhere:
@@ -40,7 +43,7 @@
   --gold-dark: #c9953f;
 
   --font-round: 'Fredoka', 'Nunito', system-ui, sans-serif;
-  --font-hand: 'Gaegu', 'Comic Sans MS', cursive;
+  --font-hand: 'Gaegu', 'Patrick Hand', 'Comic Sans MS', cursive;
 
   --line: 2.5px solid var(--ink);
   --radius: 18px;

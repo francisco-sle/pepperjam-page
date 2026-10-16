@@ -1,5 +1,6 @@
 import { AnimatePresence, motion } from 'motion/react'
 import Doodle from './Doodle'
+import { useI18n } from '../i18n'
 import './Tabs.css'
 
 /**
@@ -8,15 +9,17 @@ import './Tabs.css'
  * move to the left edge, the current and upcoming ones stay on the right.
  */
 export default function Tabs({ sections, current, onSelect, single }) {
+  const { t } = useI18n()
+  const label = (s) => t(`sections.${s.id}`)
   if (single) {
     return (
-      <div className="tabs tabs--top" role="tablist" aria-label="Sketchbook sections">
+      <div className="tabs tabs--top" role="tablist" aria-label={t('sections.tabs')}>
         {sections.map((s, i) => (
           <motion.button
             key={s.id}
             role="tab"
             aria-selected={i === current}
-            aria-label={s.label}
+            aria-label={label(s)}
             className={`tab tab--top tab--${s.color} ${i === current ? 'is-active' : ''}`}
             onClick={() => onSelect(i)}
             initial={{ y: 30 }}
@@ -24,7 +27,7 @@ export default function Tabs({ sections, current, onSelect, single }) {
             transition={{ type: 'spring', stiffness: 380, damping: 22, delay: 0.25 + i * 0.06 }}
           >
             <span className="tab__icon"><Doodle kind={s.icon} size={18} /></span>
-            <span className="tab__label">{s.label}</span>
+            <span className="tab__label">{label(s)}</span>
           </motion.button>
         ))}
       </div>
@@ -32,7 +35,7 @@ export default function Tabs({ sections, current, onSelect, single }) {
   }
 
   return (
-    <div className="tabs" role="tablist" aria-label="Sketchbook sections">
+    <div className="tabs" role="tablist" aria-label={t('sections.tabs')}>
       <AnimatePresence initial={true}>
         {sections.map((s, i) => {
           const side = i < current ? 'left' : 'right'
@@ -57,7 +60,7 @@ export default function Tabs({ sections, current, onSelect, single }) {
               whileTap={{ scale: 0.95 }}
             >
               <span className="tab__icon"><Doodle kind={s.icon} size={26} /></span>
-              <span className="tab__label">{s.label}</span>
+              <span className="tab__label">{label(s)}</span>
             </motion.button>
           )
         })}

@@ -1,30 +1,37 @@
 import { useId, useMemo } from 'react'
 import { motion } from 'motion/react'
 import Doodle, { SocialIcon } from './Doodle'
+import LanguageToggle from './LanguageToggle'
 import useMediaQuery from '../hooks/useMediaQuery'
 import { site } from '../content/site'
+import { useI18n } from '../i18n'
 import './SideMenu.css'
 
 const SEASONS = [
-  { name: 'Winter', icon: 'sparkle' }, // Dec–Feb
-  { name: 'Spring', icon: 'flower' },
-  { name: 'Summer', icon: 'sun' },
-  { name: 'Fall', icon: 'leaf' },
+  { id: 'winter', icon: 'sparkle' }, // Dec–Feb
+  { id: 'spring', icon: 'flower' },
+  { id: 'summer', icon: 'sun' },
+  { id: 'fall', icon: 'leaf' },
 ]
 
-// Today's real date, written the way a farming game would show it.
+// Today's real date, written the way a farming game would show it ("Thu. 15", "Jue. 15").
 function useFarmDate() {
-  return useMemo(() => {
-    const now = new Date()
-    const season = SEASONS[Math.floor(((now.getMonth() + 1) % 12) / 3)]
-    const weekday = now.toLocaleDateString('en-US', { weekday: 'short' })
-    return { weekday, day: now.getDate(), season, year: now.getFullYear() }
-  }, [])
+  const { t, formatDate } = useI18n()
+  const now = useMemo(() => new Date(), [])
+  const season = SEASONS[Math.floor(((now.getMonth() + 1) % 12) / 3)]
+  const weekday = formatDate(now, { weekday: 'short' }).replace(/\.$/, '')
+  return {
+    weekday: weekday.charAt(0).toUpperCase() + weekday.slice(1),
+    day: now.getDate(),
+    season: { ...season, name: t(`menu.seasons.${season.id}`) },
+    year: now.getFullYear(),
+  }
 }
 
 // The menu bar: a solid strip down the left side (along the bottom on
 // phones) trimmed with lace, with the date, socials and sound toggle.
 export default function SideMenu({ soundOn, onToggleSound }) {
+  const { t } = useI18n()
   const date = useFarmDate()
   const phone = useMediaQuery('(max-width: 820px)')
   return (
@@ -46,25 +53,26 @@ export default function SideMenu({ soundOn, onToggleSound }) {
           </span>
         </div>
 
-        <nav className="socials" aria-label="Social links">
+        <nav className="socials" aria-label={t('menu.socials')}>
           {site.socials.map((s) => (
-            <a key={s.id} className="socials__link" href={s.url} aria-label={s.label} title={s.label}>
+            <a key={s.id} className="socials__link" href={s.url} aria-label={t(`menu.social.${s.id}`)} title={t(`menu.social.${s.id}`)}>
               <SocialIcon id={s.id} size={20} />
             </a>
           ))}
         </nav>
 
         <div className="side-menu__end">
+          <LanguageToggle />
           <button
             className={`sound-toggle ${soundOn ? 'is-on' : ''}`}
             onClick={onToggleSound}
             aria-pressed={soundOn}
-            title={soundOn ? 'Sound on' : 'Sound off'}
+            title={t(soundOn ? 'menu.soundOn' : 'menu.soundOff')}
           >
             <SoundIcon on={soundOn} />
-            <span className="sr-only">Page sounds</span>
+            <span className="sr-only">{t('menu.sounds')}</span>
           </button>
-          <span className="side-menu__copy">© {date.year} {site.name}</span>
+          <span className="side-menu__copy">{t('site.copyright', { year: date.year, name: site.name })}</span>
         </div>
       </div>
     </motion.aside>

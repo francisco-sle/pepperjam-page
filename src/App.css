@@ -22,7 +22,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  /* clear the side menu's cloud edge */
+  /* clear the side menu's lace trim */
   padding: 34px 0 52px 30px;
 }
 
@@ -128,7 +128,7 @@
   }
 
   .stage {
-    /* the pager hangs off the book, above the menu's cloud edge */
+    /* the pager hangs off the book, above the menu's lace trim */
     padding: 8px 0 62px;
   }
 

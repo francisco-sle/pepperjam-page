@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useId, useMemo } from 'react'
 import { motion } from 'motion/react'
 import Doodle, { SocialIcon } from './Doodle'
 import useMediaQuery from '../hooks/useMediaQuery'
@@ -22,8 +22,8 @@ function useFarmDate() {
   }, [])
 }
 
-// The menu bar: a solid, cloud-edged strip down the left side
-// (along the bottom on phones) with the date, socials and sound toggle.
+// The menu bar: a solid strip down the left side (along the bottom on
+// phones) trimmed with lace, with the date, socials and sound toggle.
 export default function SideMenu({ soundOn, onToggleSound }) {
   const date = useFarmDate()
   const phone = useMediaQuery('(max-width: 820px)')
@@ -34,6 +34,7 @@ export default function SideMenu({ soundOn, onToggleSound }) {
       animate={phone ? { y: 0 } : { x: 0 }}
       transition={{ type: 'spring', stiffness: 140, damping: 18, delay: 0.3 }}
     >
+      <Lace phone={phone} />
       <div className="side-menu__inner">
         <div className="calendar" title={`${date.season.name}, ${date.year}`}>
           <span className="calendar__day">
@@ -67,6 +68,45 @@ export default function SideMenu({ soundOn, onToggleSound }) {
         </div>
       </div>
     </motion.aside>
+  )
+}
+
+// The lace trim along the menu's edge: one tile per scallop, drawn for the
+// side menu (scallops pointing right) and turned to point up on phones.
+// Each scallop has an eyelet punched through it and each tile a little
+// flower in the band, with a row of stitches on the menu side of the seam.
+function Lace({ phone }) {
+  const id = useId()
+  return (
+    <svg className="side-menu__lace" aria-hidden="true">
+      <defs>
+        <pattern
+          id={id}
+          width="44"
+          height="22"
+          patternUnits="userSpaceOnUse"
+          patternTransform={phone ? 'translate(0 40) rotate(-90) scale(0.8)' : 'scale(1.3)'}
+        >
+          <circle cx="4" cy="11" r="1.5" fill="var(--paper)" opacity="0.85" />
+          <path
+            d="M10 0 H26 A11 11 0 0 1 26 22 H10 Z M30.6 11 a2.6 2.6 0 1 0 5.2 0 a2.6 2.6 0 1 0 -5.2 0 Z"
+            fill="var(--paper)"
+            fillRule="evenodd"
+          />
+          <path d="M26 0 A11 11 0 0 1 26 22" fill="none" stroke="var(--ink)" strokeWidth="2.5" />
+          <circle cx="33.2" cy="11" r="2.6" fill="none" stroke="var(--ink)" strokeWidth="1.5" />
+          <path d="M11.25 0 V22" stroke="var(--ink)" strokeWidth="2.5" />
+          <g fill="var(--rust-dark)">
+            <circle cx="19" cy="8.2" r="1.9" />
+            <circle cx="19" cy="13.8" r="1.9" />
+            <circle cx="16.2" cy="11" r="1.9" />
+            <circle cx="21.8" cy="11" r="1.9" />
+          </g>
+          <circle cx="19" cy="11" r="1.3" fill="var(--mustard)" />
+        </pattern>
+      </defs>
+      <rect width="100%" height="100%" fill={`url(#${id})`} />
+    </svg>
   )
 }
 

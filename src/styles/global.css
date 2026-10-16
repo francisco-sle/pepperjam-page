@@ -35,6 +35,9 @@
   --cocoa-light: #f0eaf8;
   --sheet: #fbf3e7; /* book pages */
   --rule-blue: #c6cdf2; /* ruled / graph paper lines */
+  --gold: #f0c462; /* brass book corners */
+  --gold-light: #fde7a6;
+  --gold-dark: #c9953f;
 
   --font-round: 'Fredoka', 'Nunito', system-ui, sans-serif;
   --font-hand: 'Gaegu', 'Comic Sans MS', cursive;

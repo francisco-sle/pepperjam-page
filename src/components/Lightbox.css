@@ -93,15 +93,35 @@
   box-shadow: var(--lift);
 }
 
-/* the picture: pieces cross-fade in here, stacked */
+/* Only the invisible stand-in takes up room (so it alone sizes the card);
+   the prints sit centred over it, and one bigger than it mid-change just
+   spills over. */
+.lightbox__prints {
+  position: relative;
+}
+
+.lightbox__room {
+  visibility: hidden;
+}
+
+.lightbox__prints > .lightbox__frame:not(.lightbox__room) {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  translate: 0 -50%;
+}
+
 .lightbox__art {
   position: relative;
   aspect-ratio: var(--aspect, 4 / 3);
 }
 
-.lightbox__art-layer {
+.lightbox__art .artwork {
   position: absolute;
   inset: 0;
+  width: auto;
+  height: auto;
 }
 
 .lightbox__frame .artwork {

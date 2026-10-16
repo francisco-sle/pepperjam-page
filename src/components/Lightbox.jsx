@@ -23,17 +23,16 @@ export default function Lightbox({ index, from, onClose, onChange, favorites, on
   const [flight, setFlight] = useState(null)
   const closeAfterLanding = useRef(false)
 
-  // the print in the card, and the picture of the piece that's showing in it
-  // (while flipping, the previous one is still fading out in there too)
-  const frameEl = () => cardRef.current?.querySelector('.lightbox__frame')
-  const measureShown = (frame) => measureFrame(frame, frame.querySelector(`[data-piece="${gallery[index].id}"]`) ?? frame)
+  // the print in the card (while flipping, the previous one is still on its
+  // way out in there too)
+  const frameEl = () => cardRef.current?.querySelector(`.lightbox__frame[data-piece="${gallery[index].id}"]`)
 
   // Before the first paint: hide the frame and put the photo where it was on the page.
   useLayoutEffect(() => {
     if (!open) return
     closeAfterLanding.current = false
     const frame = frameEl()
-    if (from && frame && !reduceMotion) setFlight({ dir: 'in', from, to: measureShown(frame), piece: gallery[index] })
+    if (from && frame && !reduceMotion) setFlight({ dir: 'in', from, to: measureFrame(frame), piece: gallery[index] })
     // only when it opens; flipping through pieces doesn't fly anything
   }, [open])
 
@@ -45,7 +44,7 @@ export default function Lightbox({ index, from, onClose, onChange, favorites, on
       setFlight(null)
       return onClose()
     }
-    setFlight({ dir: 'out', from: measureShown(frame), to: measurePhoto(photo), piece: gallery[index] })
+    setFlight({ dir: 'out', from: measureFrame(frame), to: measurePhoto(photo), piece: gallery[index] })
   }
 
   const close = () => {
@@ -206,11 +205,11 @@ export default function Lightbox({ index, from, onClose, onChange, favorites, on
 }
 
 /**
- * The print in the card. There's one for as long as the lightbox is open:
- * flipping to a piece of a different shape eases it to the new shape (and
- * the card grows or shrinks with it), while the pictures cross-fade inside.
- * It's resized for real, through --aspect, so its border never gets
- * squashed the way scaling it would.
+ * The print in the card. Flipping to another piece shuffles prints like the
+ * merch photos do: the old one tips away and fades as the new one tips in
+ * and settles, each keeping its own shape. Underneath, an invisible stand-in
+ * takes up the room the print needs and eases between shapes, so the card
+ * grows and shrinks smoothly instead of jumping.
  */
 function Frame({ piece, aspect }) {
   const shape = useMotionValue(aspect)
@@ -220,23 +219,27 @@ function Frame({ piece, aspect }) {
   }, [aspect])
 
   return (
-    <motion.div className="lightbox__frame" style={{ '--aspect': shape }}>
-      <div className="lightbox__art">
-        <AnimatePresence initial={false}>
-          <motion.div
-            key={piece.id}
-            data-piece={piece.id}
-            className="lightbox__art-layer"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-          >
+    <div className="lightbox__prints">
+      <motion.div className="lightbox__frame lightbox__room" style={{ '--aspect': shape }} aria-hidden="true">
+        <div className="lightbox__art" />
+      </motion.div>
+      <AnimatePresence initial={false}>
+        <motion.div
+          key={piece.id}
+          data-piece={piece.id}
+          className="lightbox__frame"
+          style={{ '--aspect': aspect }}
+          initial={{ opacity: 0, scale: 0.9, rotate: -6 }}
+          animate={{ opacity: 1, scale: 1, rotate: 0 }}
+          exit={{ opacity: 0, scale: 0.9, rotate: 6 }}
+          transition={{ type: 'spring', stiffness: 300, damping: 22 }}
+        >
+          <div className="lightbox__art">
             <Artwork src={piece.image} alt={piece.title} tint={piece.tint} doodle={piece.doodle} />
-          </motion.div>
-        </AnimatePresence>
-      </div>
-    </motion.div>
+          </div>
+        </motion.div>
+      </AnimatePresence>
+    </div>
   )
 }
 

@@ -162,14 +162,16 @@ const shapes = {
   ),
 }
 
-export default function Doodle({ kind = 'flower', size = 48, className = '', title, ...rest }) {
+// `sticker` gives it the white die-cut border (and a little shadow) of a vinyl
+// sticker, drawn as extra copies of the shape underneath (see .doodle__cut).
+export default function Doodle({ kind = 'flower', size = 48, className = '', title, sticker = false, ...rest }) {
   const shape = shapes[kind] ?? shapes.flower
   return (
     <svg
       viewBox="0 0 64 64"
       width={size}
       height={size}
-      className={`doodle ${className}`}
+      className={`doodle ${sticker ? 'doodle--sticker' : ''} ${className}`}
       fill="none"
       stroke={INK}
       strokeWidth="2.6"
@@ -180,12 +182,18 @@ export default function Doodle({ kind = 'flower', size = 48, className = '', tit
       {...rest}
     >
       {title && <title>{title}</title>}
+      {sticker && (
+        <>
+          <g className="doodle__cut doodle__cut--shadow">{shape}</g>
+          <g className="doodle__cut">{shape}</g>
+        </>
+      )}
       {shape}
     </svg>
   )
 }
 
-// Social media glyphs (simple, single-color so they sit nicely on the footer).
+// Social media glyphs (simple, single-color so they sit nicely in the side menu).
 const socialPaths = {
   instagram: (
     <>

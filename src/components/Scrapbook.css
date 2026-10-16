@@ -1,0 +1,173 @@
+/* ---------- Paper scraps ---------- */
+
+.scrap {
+  position: relative;
+}
+
+.scrap__paper {
+  position: relative;
+  height: 100%;
+  padding: 1.1em 1.1em 1em;
+  background-color: #fffdf8;
+  border: var(--line);
+  border-radius: 8px;
+}
+
+/* torn scraps are cut to shape, and their outline drawn on top by an SVG */
+.scrap--torn .scrap__paper {
+  border-color: transparent;
+  border-radius: 0;
+}
+
+.scrap__outline {
+  position: absolute;
+  top: 0;
+  left: 0;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.scrap__outline polygon {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 2.5;
+  stroke-linejoin: round;
+}
+
+/* the same flat drop shadow as the cards and photos */
+.scrap__shadow {
+  position: absolute;
+  inset: 0;
+  translate: 0 4px;
+  border-radius: 8px;
+  background: rgb(107 74 54 / 0.14);
+}
+
+.scrap--torn .scrap__shadow {
+  border-radius: 0;
+}
+
+/* ruled notebook paper with a pink margin line; text inside sits on the
+   lines when it uses the paper's own font size and line height */
+.scrap--lined .scrap__paper {
+  --rule: 1.45em;
+  --lines-top: 0.9em; /* where the first line of text starts */
+  padding: var(--lines-top) 1em 0.6em 2.3em;
+  line-height: var(--rule);
+  background:
+    linear-gradient(90deg, transparent 1.5em, rgb(238 152 134 / 0.6) 1.5em calc(1.5em + 1.5px), transparent 0),
+    repeating-linear-gradient(transparent 0 calc(var(--rule) - 1.5px), var(--rule-blue) calc(var(--rule) - 1.5px) var(--rule)) 0 calc(var(--lines-top) - 0.22em),
+    #fffdf8;
+}
+
+.scrap--lined .scrap__paper > * {
+  line-height: inherit;
+}
+
+/* graph paper */
+.scrap--grid .scrap__paper {
+  background:
+    linear-gradient(90deg, #dde2f8 1px, transparent 1px) 0 0 / 0.9em 0.9em,
+    linear-gradient(#dde2f8 1px, transparent 1px) 0 0 / 0.9em 0.9em,
+    #fbfcff;
+}
+
+/* sticky note: a little darker towards the sticky top edge */
+.scrap--sticky .scrap__paper {
+  background: linear-gradient(rgb(201 138 76 / 0.12), transparent 22%), var(--mustard);
+}
+
+/* plain white paper */
+.scrap--plain .scrap__paper {
+  background: #fffdf8;
+}
+
+
+/* ---------- Photo mounts ---------- */
+
+/* Triangle photo corners, like an old album */
+.photo-corners {
+  position: absolute;
+  inset: -5px;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.photo-corner {
+  position: absolute;
+  width: 2.1em;
+  height: 2.1em;
+  max-width: 34px;
+  max-height: 34px;
+  overflow: visible;
+}
+
+.photo-corner path {
+  fill: var(--corner);
+  stroke: var(--ink);
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+
+.photo-corner--tl { top: 0; left: 0; }
+.photo-corner--tr { top: 0; right: 0; rotate: 90deg; }
+.photo-corner--br { bottom: 0; right: 0; rotate: 180deg; }
+.photo-corner--bl { bottom: 0; left: 0; rotate: 270deg; }
+
+/* Push pin stuck in the top edge */
+.push-pin {
+  position: absolute;
+  z-index: 2;
+  top: -1.5em;
+  left: 50%;
+  width: 2em;
+  max-width: 34px;
+  translate: -50% 0;
+  rotate: 12deg;
+  overflow: visible;
+  pointer-events: none;
+  stroke: var(--ink);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.push-pin__needle {
+  stroke: var(--ink-soft);
+  stroke-width: 2.5;
+}
+
+.push-pin__base,
+.push-pin__head,
+.push-pin__top {
+  fill: var(--pin);
+}
+
+.push-pin__top {
+  fill: color-mix(in srgb, var(--pin) 55%, white);
+}
+
+/* Paper clip over the top edge */
+.paper-clip {
+  position: absolute;
+  z-index: 2;
+  top: -1.3em;
+  right: 14%;
+  width: 1.05em;
+  max-width: 20px;
+  rotate: 8deg;
+  overflow: visible;
+  pointer-events: none;
+  fill: none;
+  stroke-linecap: round;
+}
+
+.paper-clip__ink {
+  stroke: var(--ink);
+  stroke-width: 5.5;
+}
+
+.paper-clip__wire {
+  stroke: #dfe3f6;
+  stroke-width: 2.5;
+}

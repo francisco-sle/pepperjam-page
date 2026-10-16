@@ -40,32 +40,45 @@
 
 .gallery-page__note {
   position: absolute;
-  display: flex;
-  flex-direction: column;
-  gap: 0.4em;
+}
+
+.gallery-page__note .page-note {
+  color: var(--ink);
+}
+
+.gallery-page__note--left .scrap__paper {
+  font-family: var(--font-hand);
+  font-size: 1.3em;
+}
+
+.gallery-page__note--left .page-note {
+  font-size: 1em;
 }
 
 .gallery-page__note--left {
   left: 2%;
-  top: 64%;
+  top: 63%;
   width: 44%;
+  rotate: 2deg;
 }
 
 .gallery-page__note--right {
-  left: 2%;
-  top: 58%;
-  width: 36%;
+  left: 3%;
+  top: 59%;
+  width: 34%;
+  rotate: -3deg;
 }
 
-.gallery-page__note .doodle {
-  width: 1.4em;
-  height: 1.4em;
+.gallery-page__note--right .scrap__paper {
+  padding: 1em 0.9em 0.9em;
 }
 
 .squiggle-arrow {
-  width: 60%;
+  display: block;
+  width: 55%;
+  margin-top: 0.2em;
   fill: none;
-  stroke: var(--ink-soft);
+  stroke: var(--rust-dark);
   stroke-width: 2.5;
   stroke-linecap: round;
   stroke-linejoin: round;
@@ -82,8 +95,8 @@
   width: 0.6em;
   height: 0.6em;
   border-radius: 50%;
-  background: var(--paper-2);
-  border: 2px solid var(--ink-soft);
+  background: var(--paper);
+  border: 2px solid var(--ink);
 }
 
 .gallery-dots .is-on {

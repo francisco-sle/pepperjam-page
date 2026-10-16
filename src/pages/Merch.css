@@ -10,6 +10,13 @@
   padding: 1.5em 1em 1em;
 }
 
+.merch-box > .tape {
+  left: auto;
+  right: -1.2em;
+  top: 0.4em;
+  rotate: 38deg;
+}
+
 .merch-box .pill-label {
   background: var(--caramel);
 }
@@ -75,6 +82,13 @@
 .merch-box--markets {
   flex: 1;
   min-height: 0;
+  padding: 0;
+  rotate: -0.8deg;
+}
+
+.merch-box--markets .scrap__paper {
+  --lines-top: 2.35em; /* one empty line under the label */
+  padding-bottom: 1.2em;
 }
 
 .markets {
@@ -87,21 +101,17 @@
   display: flex;
   align-items: center;
   gap: 0.8em;
-  padding: 0.5em 0;
-  border-bottom: 2.5px dashed var(--paper-line);
 }
 
-.markets li:last-child {
-  border-bottom: 0;
-}
-
+/* each market takes two ruled lines: name, then place */
 .markets__date {
   flex: none;
   min-width: 4.4em;
   text-align: center;
-  padding: 0.1em 0.5em;
+  padding: 0 0.5em;
   font-weight: 600;
   font-size: 0.8em;
+  line-height: 1.5;
   background: var(--matcha-light);
   border: 2px solid var(--ink);
   border-radius: 999px;
@@ -110,7 +120,6 @@
 .markets__info {
   display: flex;
   flex-direction: column;
-  line-height: 1.2;
 }
 
 .markets__info strong {
@@ -119,6 +128,7 @@
 
 .markets__place {
   font-size: 0.85em;
+  line-height: inherit;
   color: var(--ink-soft);
 }
 
@@ -251,8 +261,17 @@
   height: 1.2em;
 }
 
+.merch-featured__card {
+  margin: 1.2em 0 1em;
+  rotate: -0.6deg;
+}
+
+.merch-featured__card .scrap__paper {
+  padding: 0.9em 1.1em 0.8em;
+}
+
 .merch-featured__desc {
-  margin: 0.5em 0 0.9em;
+  margin: 0.4em 0 0;
   line-height: 1.45;
   min-height: 2.9em;
 }

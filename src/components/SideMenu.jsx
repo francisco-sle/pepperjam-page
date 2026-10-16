@@ -1,8 +1,9 @@
 import { useMemo } from 'react'
 import { motion } from 'motion/react'
 import Doodle, { SocialIcon } from './Doodle'
+import useMediaQuery from '../hooks/useMediaQuery'
 import { site } from '../content/site'
-import './Footer.css'
+import './SideMenu.css'
 
 const SEASONS = [
   { name: 'Winter', icon: 'sparkle' }, // Dec–Feb
@@ -16,23 +17,28 @@ function useFarmDate() {
   return useMemo(() => {
     const now = new Date()
     const season = SEASONS[Math.floor(((now.getMonth() + 1) % 12) / 3)]
-    const day = now.toLocaleDateString('en-US', { weekday: 'short' })
-    return { label: `${day}. ${now.getDate()}`, season, year: now.getFullYear() }
+    const weekday = now.toLocaleDateString('en-US', { weekday: 'short' })
+    return { weekday, day: now.getDate(), season, year: now.getFullYear() }
   }, [])
 }
 
-export default function Footer({ soundOn, onToggleSound }) {
+// The menu bar: a solid, cloud-edged strip down the left side
+// (along the bottom on phones) with the date, socials and sound toggle.
+export default function SideMenu({ soundOn, onToggleSound }) {
   const date = useFarmDate()
+  const phone = useMediaQuery('(max-width: 820px)')
   return (
-    <motion.footer
-      className="footer"
-      initial={{ y: 80 }}
-      animate={{ y: 0 }}
+    <motion.aside
+      className="side-menu"
+      initial={phone ? { y: 90 } : { x: -130 }}
+      animate={phone ? { y: 0 } : { x: 0 }}
       transition={{ type: 'spring', stiffness: 140, damping: 18, delay: 0.3 }}
     >
-      <div className="footer__inner">
+      <div className="side-menu__inner">
         <div className="calendar" title={`${date.season.name}, ${date.year}`}>
-          <span className="calendar__day">{date.label}</span>
+          <span className="calendar__day">
+            <span className="calendar__weekday">{date.weekday}.</span> <b>{date.day}</b>
+          </span>
           <span className="calendar__season">
             <Doodle kind={date.season.icon} size={20} />
             <span>{date.season.name}</span>
@@ -42,12 +48,12 @@ export default function Footer({ soundOn, onToggleSound }) {
         <nav className="socials" aria-label="Social links">
           {site.socials.map((s) => (
             <a key={s.id} className="socials__link" href={s.url} aria-label={s.label} title={s.label}>
-              <SocialIcon id={s.id} size={17} />
+              <SocialIcon id={s.id} size={20} />
             </a>
           ))}
         </nav>
 
-        <div className="footer__end">
+        <div className="side-menu__end">
           <button
             className={`sound-toggle ${soundOn ? 'is-on' : ''}`}
             onClick={onToggleSound}
@@ -57,10 +63,10 @@ export default function Footer({ soundOn, onToggleSound }) {
             <SoundIcon on={soundOn} />
             <span className="sr-only">Page sounds</span>
           </button>
-          <span className="footer__copy">© {date.year} {site.name}</span>
+          <span className="side-menu__copy">© {date.year} {site.name}</span>
         </div>
       </div>
-    </motion.footer>
+    </motion.aside>
   )
 }
 

@@ -26,6 +26,14 @@
   rotate: 8deg;
 }
 
+.sticker--berry {
+  width: 12cqw;
+  height: auto;
+  left: 2%;
+  bottom: 9%;
+  rotate: -12deg;
+}
+
 .sticker--spark1 {
   top: 12%;
   right: 2%;
@@ -48,22 +56,22 @@
   gap: 1em;
 }
 
-/* Dialogue card */
+/* Bio, on a torn-off piece of graph paper */
 .dialogue {
-  position: relative;
   width: 100%;
   flex: 1 0 auto;
-  padding: 1.7em 1.3em 1.1em;
   margin-top: 0.8em;
-  background: #fffdf9;
-  border: var(--line);
-  border-radius: var(--radius);
-  box-shadow: var(--lift);
+  rotate: 0.6deg;
+}
+
+.dialogue .scrap__paper {
+  padding: 2em 1.3em 1.1em;
 }
 
 .dialogue__head {
   position: absolute;
-  top: 0;
+  z-index: 1;
+  top: 0.3em;
   left: 1.1em;
   translate: 0 -55%;
   display: flex;

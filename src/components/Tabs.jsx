@@ -1,6 +1,5 @@
 import { AnimatePresence, motion } from 'motion/react'
 import Doodle from './Doodle'
-import { playPop } from '../hooks/sound'
 import './Tabs.css'
 
 /**
@@ -19,7 +18,7 @@ export default function Tabs({ sections, current, onSelect, single }) {
             aria-selected={i === current}
             aria-label={s.label}
             className={`tab tab--top tab--${s.color} ${i === current ? 'is-active' : ''}`}
-            onClick={() => { playPop(1 + i * 0.12); onSelect(i) }}
+            onClick={() => onSelect(i)}
             initial={{ y: 30 }}
             animate={{ y: i === current ? -6 : 0 }}
             transition={{ type: 'spring', stiffness: 380, damping: 22, delay: 0.25 + i * 0.06 }}
@@ -46,7 +45,7 @@ export default function Tabs({ sections, current, onSelect, single }) {
               aria-selected={active}
               className={`tab tab--${side} tab--${s.color} ${active ? 'is-active' : ''}`}
               style={{ top: `calc(9% + ${i} * max(12%, 60px))` }}
-              onClick={() => { playPop(1 + i * 0.12); onSelect(i) }}
+              onClick={() => onSelect(i)}
               initial={{ x: -70 * out, opacity: 0 }}
               animate={{
                 x: active ? 10 * out : 0,

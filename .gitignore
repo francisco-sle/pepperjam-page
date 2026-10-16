@@ -5,3 +5,4 @@ dist
 # local reference material (not part of the site)
 moodboard/
 wireframe/
+.preview

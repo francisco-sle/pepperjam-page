@@ -215,26 +215,28 @@
   --rust: #ee9886;
 }
 
-/* The photo while it's travelling between the page and the frame */
+/* The photo while it's travelling between the page and the frame. Its
+   flat shadow is a separate layer, so it can drop further away while the
+   photo is in the air without repainting a box-shadow every frame. */
 .flyer {
   position: fixed;
-  top: 0;
-  left: 0;
   z-index: 51;
   pointer-events: none;
+}
+
+.flyer__shadow {
+  position: absolute;
+  inset: 0;
+  background: rgb(70 40 20 / 0.15);
 }
 
 .flyer__sheet {
   width: 100%;
   height: 100%;
-  overflow: hidden;
+  box-shadow: none;
 }
 
 .flyer__sheet .artwork {
   flex: 1;
   min-height: 0;
-}
-
-.flyer .polaroid__caption {
-  flex: none;
 }

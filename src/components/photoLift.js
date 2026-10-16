@@ -43,14 +43,23 @@ export function findPhoto(index) {
   return null
 }
 
-/** The lightbox frame's box (it never rotates). */
+/**
+ * What a picture is "of": the doodle on a placeholder, otherwise the image.
+ * Lining these up is what makes two pictures read as the same one.
+ */
+export const subjectOf = (el) => el.querySelector('.artwork__doodle') ?? el.querySelector('.artwork')
+
+/** The lightbox frame's box and its picture's subject (it never rotates). */
 export function measureFrame(el) {
   const r = el.getBoundingClientRect()
+  const a = (subjectOf(el) ?? el).getBoundingClientRect()
   return {
     cx: r.left + r.width / 2,
     cy: r.top + r.height / 2,
     w: r.width,
     h: r.height,
-    radius: parseFloat(getComputedStyle(el).borderTopLeftRadius),
+    subject: { cx: a.left + a.width / 2, cy: a.top + a.height / 2, w: a.width },
+    // the subject's spot inside the frame, to zoom the frame around
+    origin: `${a.left + a.width / 2 - r.left}px ${a.top + a.height / 2 - r.top}px`,
   }
 }

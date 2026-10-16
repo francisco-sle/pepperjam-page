@@ -155,6 +155,14 @@
   aspect-ratio: 1 / 1.08;
 }
 
+.merch-featured__viewport {
+  place-self: stretch;
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: 0;
+}
+
 .merch-featured__dots {
   display: none;
 }
@@ -171,8 +179,11 @@
     row-gap: 0.7em;
   }
 
-  .merch-featured__photo {
+  .merch-featured__viewport {
     grid-area: photo;
+  }
+
+  .merch-featured__photo {
     width: min(94cqw, (100cqh - 2.9em) / 1.08);
   }
 

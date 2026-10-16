@@ -74,8 +74,9 @@
   column-gap: 8px;
 }
 
-.lightbox__frame {
+.lightbox__viewport {
   grid-area: frame;
+  position: relative;
 }
 
 .lightbox__frame {
@@ -123,6 +124,21 @@
 
   .lightbox .chevron {
     margin-top: 12px;
+  }
+
+  /* Titles and notes differ in length, so the card's height changes from
+     piece to piece. Hang it from the top, with room for a two-line title,
+     so the art stays put while you flip through. */
+  .lightbox {
+    place-items: start center;
+    padding-top: max(16px, 6dvh);
+  }
+
+  .lightbox__title {
+    min-height: 2.2em;
+    display: grid;
+    place-items: center;
+    line-height: 1.1;
   }
 }
 

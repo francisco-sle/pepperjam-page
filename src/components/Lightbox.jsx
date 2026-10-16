@@ -81,18 +81,22 @@ export default function Lightbox({ index, onClose, onChange, favorites, onToggle
               <button className="chevron chevron--prev" onClick={() => go(-1)} aria-label="Previous artwork">
                 <Chevron />
               </button>
-              <AnimatePresence mode="popLayout" initial={false}>
-                <motion.div
-                  key={piece.id}
-                  className="lightbox__frame"
-                  initial={{ opacity: 0, scale: 0.94 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.94 }}
-                  transition={{ duration: 0.22 }}
-                >
-                  <Artwork src={piece.image} alt={piece.title} tint={piece.tint} doodle={piece.doodle} />
-                </motion.div>
-              </AnimatePresence>
+              {/* the outgoing art is lifted out while it fades; this box is what
+                  it's positioned against (a grid cell would offset it twice) */}
+              <div className="lightbox__viewport">
+                <AnimatePresence mode="popLayout" initial={false}>
+                  <motion.div
+                    key={piece.id}
+                    className="lightbox__frame"
+                    initial={{ opacity: 0, scale: 0.94 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.94 }}
+                    transition={{ duration: 0.22 }}
+                  >
+                    <Artwork src={piece.image} alt={piece.title} tint={piece.tint} doodle={piece.doodle} />
+                  </motion.div>
+                </AnimatePresence>
+              </div>
               <button className="chevron chevron--next" onClick={() => go(1)} aria-label="Next artwork">
                 <Chevron />
               </button>

@@ -288,7 +288,12 @@ export default function Book({ pages, page, single, onNavigate, children }) {
 
   return (
     <div className={`book ${single ? 'book--single' : 'book--spread'}`}>
-      <div className="book__cover" aria-hidden="true" />
+      <div className="book__cover" aria-hidden="true">
+        <div className="book__spine" />
+        {['tl', 'tr', 'bl', 'br'].map((at) => (
+          <CoverCorner key={at} at={at} />
+        ))}
+      </div>
       <div className="book__ribbon" aria-hidden="true" />
       <style>{placeRules}</style>
       {!single && (
@@ -374,15 +379,34 @@ function Stack({ side, sheets, placeAt }) {
   )
 }
 
+// A brass corner guard riveted onto the leather cover (drawn for the top
+// left corner, mirrored by CSS for the others).
+function CoverCorner({ at }) {
+  return (
+    <svg className={`book__corner book__corner--${at}`} viewBox="0 0 60 60">
+      <path d="M3 10 Q3 3 10 3 H56 L44 15 H22 Q15 15 15 22 V44 L3 56 Z" fill="var(--gold)" />
+      <path d="M41 13.2 H22 Q13.2 13.2 13.2 22 V41" fill="none" stroke="var(--gold-dark)" strokeWidth="3" />
+      <path d="M6.5 42 V11 Q6.5 6.5 11 6.5 H42" fill="none" stroke="var(--gold-light)" strokeWidth="2" strokeLinecap="round" />
+      <path d="M3 10 Q3 3 10 3 H56 L44 15 H22 Q15 15 15 22 V44 L3 56 Z" fill="none" stroke="var(--ink)" strokeWidth="2.5" strokeLinejoin="round" />
+      {[[9, 9, 3.3], [33, 9, 2.6], [9, 33, 2.6]].map(([x, y, r]) => (
+        <g key={`${x}-${y}`}>
+          <circle cx={x} cy={y} r={r} fill="var(--gold-light)" stroke="var(--ink)" strokeWidth="1.5" />
+          <circle cx={x - r * 0.3} cy={y - r * 0.3} r={r * 0.32} fill="#fff" opacity="0.9" />
+        </g>
+      ))}
+    </svg>
+  )
+}
+
 function Spiral({ rings }) {
   return (
     <div className="spiral" aria-hidden="true">
       {Array.from({ length: rings }, (_, i) => (
-        <svg key={i} className="spiral__ring" viewBox="0 0 48 20">
-          <circle cx="8" cy="12" r="2.6" fill="var(--ink)" opacity="0.75" />
-          <circle cx="40" cy="12" r="2.6" fill="var(--ink)" opacity="0.75" />
-          <path d="M8 12 C8 0 40 0 40 12" fill="none" stroke="var(--ink)" strokeWidth="6.5" strokeLinecap="round" />
-          <path d="M8 12 C8 0 40 0 40 12" fill="none" stroke="#f6eadb" strokeWidth="3" strokeLinecap="round" />
+        <svg key={i} className="spiral__ring" viewBox="0 0 48 20" overflow="visible">
+          <circle cx="8" cy="12" r="3.3" fill="var(--ink)" opacity="0.75" />
+          <circle cx="40" cy="12" r="3.3" fill="var(--ink)" opacity="0.75" />
+          <path d="M8 12 C8 0 40 0 40 12" fill="none" stroke="var(--ink)" strokeWidth="8.5" strokeLinecap="round" />
+          <path d="M8 12 C8 0 40 0 40 12" fill="none" stroke="#f6eadb" strokeWidth="4.5" strokeLinecap="round" />
         </svg>
       ))}
     </div>

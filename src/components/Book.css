@@ -2,38 +2,123 @@
   position: relative;
   flex: none;
   isolation: isolate;
+  container: book / inline-size; /* sizes the cover's corners */
 }
 
-/* Hardcover: caramel with a stitched edge and a cream sticker-style outline */
+/* Hardcover, half bound: orange leather boards (mottled and grained by a
+   noise image rather than a CSS filter, with darker worn edges and a tooled
+   border), a darker leather spine and brass guards on the outer corners */
 .book__cover {
+  --corner: clamp(36px, 5.4cqw, 64px);
   position: absolute;
+  z-index: 0; /* keeps the spine and corners under the pages */
+  --leather: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='m'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.018' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .48 0 0 0 0 .22 0 0 0 0 .07 .9 0 0 0 -.34'/%3E%3C/filter%3E%3Cfilter id='l'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.03' numOctaves='2' seed='7' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 .9 0 0 0 0 .72 0 .8 0 0 -.38'/%3E%3C/filter%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .4 0 0 0 0 .2 0 0 0 0 .06 .7 0 0 0 -.28'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23m)'/%3E%3Crect width='100%25' height='100%25' filter='url(%23l)'/%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
   /* less cover above the pages than around them: the piles of sheets fan
      out downwards, so this keeps the book looking seen from a bit above */
-  inset: -11px -20px -24px -20px;
-  background:
-    repeating-linear-gradient(45deg, rgb(255 255 255 / 0.08) 0 2px, transparent 2px 14px),
-    repeating-linear-gradient(-45deg, rgb(255 255 255 / 0.08) 0 2px, transparent 2px 14px),
-    var(--caramel);
+  inset: -16px -28px -30px -28px;
+  background: var(--leather) 0 0 / 260px 260px, var(--caramel);
   border: var(--line);
-  border-radius: 26px;
+  border-radius: 12px;
   box-shadow:
-    inset 0 -6px 0 rgb(107 74 54 / 0.14),
-    0 0 0 5px var(--paper),
-    0 0 0 7.5px var(--ink),
-    10px 14px 0 7.5px rgb(107 74 54 / 0.14);
+    inset 0 0 14px rgb(122 62 24 / 0.38),
+    inset 0 -5px 0 rgb(107 74 54 / 0.16),
+    10px 14px 0 rgb(107 74 54 / 0.14);
 }
 
-.book__cover::after {
+/* a groove pressed into the leather, catching the light on its lower lip */
+.book__cover::before {
   content: '';
   position: absolute;
-  inset: 5px 7px 7px;
-  border: 2px dashed rgb(255 250 243 / 0.75);
-  border-radius: 19px;
+  inset: 5px 9px 9px;
+  border: 1.5px solid rgb(122 62 24 / 0.42);
+  border-radius: 7px;
+  box-shadow: 0 1px 0 rgb(255 236 210 / 0.35), inset 0 1px 0 rgb(255 236 210 / 0.3);
 }
 
 .book--single .book__cover {
+  --corner: clamp(34px, 9cqw, 44px);
   inset: -8px -14px -20px -28px;
 }
+
+/* The spine: a strip of darker leather laid over the boards, standing a
+   little proud of them at the head and tail, with raised bands across it
+   (seen on phones, where it runs down the left) and gold tooling. */
+.book__spine {
+  --band: linear-gradient(var(--ink) 0 1.5px, rgb(255 236 210 / 0.4) 1.5px 3.5px, transparent 3.5px 6px, rgb(80 36 12 / 0.35) 6px 7.5px, var(--ink) 7.5px 9px);
+  position: absolute;
+  z-index: 1;
+  top: -7px;
+  bottom: -7px;
+  left: 50%;
+  width: clamp(70px, 11cqw, 150px);
+  translate: -50% 0;
+  background:
+    var(--band) 0 22% / 100% 9px no-repeat,
+    var(--band) 0 41% / 100% 9px no-repeat,
+    var(--band) 0 59% / 100% 9px no-repeat,
+    var(--band) 0 78% / 100% 9px no-repeat,
+    var(--leather) 30px 0 / 260px 260px,
+    color-mix(in srgb, var(--caramel-dark), var(--ink) 24%);
+  border: var(--line);
+  border-radius: 9px / 6px;
+  box-shadow:
+    inset 0 0 10px rgb(70 30 10 / 0.4),
+    inset 4px 0 0 rgb(255 236 210 / 0.12),
+    3px 0 0 rgb(107 74 54 / 0.2),
+    -3px 0 0 rgb(107 74 54 / 0.2);
+}
+
+/* gold fillets: a double line framing the spine */
+.book__spine::before,
+.book__spine::after {
+  content: '';
+  position: absolute;
+  border: 1.5px solid var(--gold);
+  border-radius: 4px;
+}
+
+.book__spine::before {
+  inset: 5px 5px;
+}
+
+.book__spine::after {
+  inset: 9px 9px;
+  border-width: 1px;
+  opacity: 0.75;
+}
+
+.book--single .book__spine {
+  top: -5px;
+  bottom: -5px;
+  left: -6px;
+  width: 32px;
+  translate: none;
+  border-radius: 12px 5px 5px 12px;
+}
+
+.book--single .book__spine::after {
+  display: none;
+}
+
+/* the corners on the spine side have no guards */
+.book--single .book__corner--tl,
+.book--single .book__corner--bl {
+  display: none;
+}
+
+.book__corner {
+  position: absolute;
+  z-index: 1;
+  width: var(--corner);
+  height: var(--corner);
+  /* wraps a little over the edge of the cover */
+  --edge: calc(-2.5px - var(--corner) * 0.05 - 1px);
+}
+
+.book__corner--tl { top: var(--edge); left: var(--edge); }
+.book__corner--tr { top: var(--edge); right: var(--edge); scale: -1 1; }
+.book__corner--bl { bottom: var(--edge); left: var(--edge); scale: 1 -1; }
+.book__corner--br { bottom: var(--edge); right: var(--edge); scale: -1 -1; }
 
 /* Ribbon bookmark hanging out of the bottom */
 .book__ribbon {
@@ -209,14 +294,23 @@
   --ring-h: 19.17px; /* 46px ring x 20/48 */
   --hole-x: 15.3px; /* from the spine */
   position: absolute;
-  inset: 0;
+  /* measured from the page's outer edge, like the spiral is from the book's */
+  inset: -2.5px;
   z-index: 1;
   pointer-events: none;
 }
 
+.page--left .page__holes {
+  right: -1px;
+}
+
+.page--right .page__holes {
+  left: -1px;
+}
+
 .page--single .page__holes {
   --ring-h: 15px; /* 36px ring */
-  --hole-x: 14px;
+  --hole-x: 14.6px;
 }
 
 .page__hole {

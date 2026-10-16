@@ -231,8 +231,10 @@
 
 .merch-featured__limited {
   position: absolute;
+  z-index: 3; /* over the photo mounts */
   left: -0.7em;
-  bottom: 1.2em;
+  /* clear of the bottom photo corner */
+  bottom: 3.2em;
   rotate: -8deg;
 }
 

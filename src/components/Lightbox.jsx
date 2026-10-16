@@ -1,6 +1,7 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { AnimatePresence, animate, motion, useMotionValue, useReducedMotion, useTransform, useVelocity } from 'motion/react'
 import { gallery } from '../content/gallery'
+import { artAspect } from '../pages/Gallery'
 import Artwork from './Artwork'
 import Doodle from './Doodle'
 import { findPhoto, measureFrame, measurePhoto } from './photoLift'
@@ -83,6 +84,8 @@ export default function Lightbox({ index, from, onClose, onChange, favorites, on
   })
 
   const piece = open ? gallery[index] : null
+  // the picture keeps the shape it has in the book (the card grows to fit)
+  const aspect = useMemo(() => (open && artAspect(index)) || 4 / 3, [open, index])
   const fav = piece && favorites.includes(piece.id)
   const go = (d) => {
     if (flight) return
@@ -155,6 +158,7 @@ export default function Lightbox({ index, from, onClose, onChange, favorites, on
                       key={piece.id}
                       data-piece={piece.id}
                       className="lightbox__frame"
+                      style={{ '--aspect': aspect }}
                       initial={{ opacity: 0, scale: 0.94 }}
                       animate={{ opacity: 1, scale: 1 }}
                       exit={{ opacity: 0, scale: 0.94 }}
@@ -218,34 +222,34 @@ function Chevron() {
 // up (as a fraction of the photo) and how far it tips towards you (deg).
 const PEEL = {
   // held at the top: the bottom comes up first, the tape stays on the page
-  tape: { origin: [0.5, 0], rotateX: 22, rotateY: 0 },
+  tape: { origin: '50% 0%', rotateX: 16, rotateY: 0 },
   // tucked into four corners: one corner lifts and it slides out
-  corners: { origin: [0, 0], rotateX: 12, rotateY: -14 },
+  corners: { origin: '0% 0%', rotateX: 10, rotateY: -10 },
   // the pin's pulled out, then it comes away flat-ish
-  pin: { origin: [0.5, 0.5], rotateX: 8, rotateY: 6 },
+  pin: { origin: '50% 50%', rotateX: 6, rotateY: 4 },
   // slides down out of the clip, top edge tipping up
-  clip: { origin: [0.5, 1], rotateX: -14, rotateY: 0 },
+  clip: { origin: '50% 100%', rotateX: -10, rotateY: 0 },
 }
 
-// One continuous move each way, like a view transition: quick off the mark,
-// soft landing.
+// One continuous move each way: quick off the mark, soft landing.
 const OPEN = { duration: 0.4, ease: [0.2, 0.8, 0.2, 1] }
 const CLOSE = { duration: 0.35, ease: [0.4, 0, 0.2, 1] }
 
 const clamp = (v, max) => Math.max(-max, Math.min(max, v))
+const px = (v) => `${v}px`
 
 /**
  * The photo while it's off the page, drawn above everything.
  *
- * Works like a view transition between the photo on the page and the
- * lightbox frame: a copy of each, pinned together on their subject, moves
- * from one place to the other in a single motion while they cross-fade, so
- * the photo turns into the framed print on the way. Neither copy ever
- * changes shape; the pair only moves, turns and grows.
+ * It's one photo the whole way, like a view transition of a single element:
+ * the lightbox shows the picture the same shape it has in the book, so the
+ * photo just grows into the framed print as it moves. Its picture never
+ * changes shape; around it, the caption folds away, the white border evens
+ * out and the "art coming soon" label comes in.
  *
- * The same timeline also lets the photo peel up from its mount, travel in a
- * slight arc and tip a little with its own speed, with its shadow dropping
- * away while it's in the air.
+ * The same timeline also lets it peel up from its mount, travel in a slight
+ * arc and tip a little with its own speed, with its shadow dropping away
+ * while it's in the air.
  */
 function Flyer({ flight, onDone }) {
   const { dir, piece } = flight
@@ -253,74 +257,66 @@ function Flyer({ flight, onDone }) {
   const frame = dir === 'in' ? flight.to : flight.from
   const peel = PEEL[photo.mount] ?? PEEL.tape
 
-  // where each end puts the shared subject on screen
-  const a = (photo.rotate * Math.PI) / 180
-  const px = photo.subject.x - photo.w / 2
-  const py = photo.subject.y - photo.h / 2
+  // the two ends: a polaroid on the page, and the print in the lightbox
+  // (whose padding is 8px all round: 0.5em at 16px)
   const onPage = {
-    x: photo.cx + px * Math.cos(a) - py * Math.sin(a),
-    y: photo.cy + px * Math.sin(a) + py * Math.cos(a),
-    scale: 1,
-    rotate: photo.rotate,
+    x: photo.cx, y: photo.cy, w: photo.w, h: photo.h, rotate: photo.rotate,
+    fontSize: photo.fontSize, radius: photo.radius, artRadius: photo.artRadius,
+    padBottom: 0, captionH: photo.captionH, caption: 1, labelH: 0, labelM: 0, label: 0,
   }
   const inFrame = {
-    x: frame.cx - frame.w / 2 + frame.subject.x,
-    y: frame.cy - frame.h / 2 + frame.subject.y,
-    // how much bigger the picture is in the frame than on the page
-    scale: frame.subject.w / photo.subject.w,
-    rotate: 0,
+    x: frame.cx, y: frame.cy, w: frame.w, h: frame.h, rotate: 0,
+    fontSize: 16, radius: frame.radius, artRadius: frame.artRadius,
+    padBottom: 8, captionH: 0, caption: 0, labelH: frame.label?.h ?? 0, labelM: frame.label?.m ?? 0, label: 1,
   }
   const [start, end] = dir === 'in' ? [onPage, inFrame] : [inFrame, onPage]
-  const rest = dir === 'in'
-    ? { shadow: 8, photoOpacity: 1, frameOpacity: 0 }
-    : { shadow: 4, photoOpacity: 0, frameOpacity: 1 }
 
-  const x = useMotionValue(start.x)
-  const y = useMotionValue(start.y)
-  const scale = useMotionValue(start.scale)
-  const rotate = useMotionValue(start.rotate)
+  const mv = {}
+  for (const k of Object.keys(start)) mv[k] = useMotionValue(start[k])
   const arc = useMotionValue(0)
   const peelX = useMotionValue(0)
   const peelY = useMotionValue(0)
-  const shadow = useMotionValue(rest.shadow)
-  const photoOpacity = useMotionValue(rest.photoOpacity)
-  const frameOpacity = useMotionValue(rest.frameOpacity)
+  const shadow = useMotionValue(dir === 'in' ? 8 : 4)
 
-  const top = useTransform(() => y.get() + arc.get())
-  const vx = useVelocity(x)
-  const vy = useVelocity(top)
+  const arcY = useTransform(() => mv.y.get() + arc.get())
+  const vx = useVelocity(mv.x)
+  const vy = useVelocity(arcY)
   // the leading edge drags back a little while it moves
-  const tiltX = useTransform(() => peelX.get() - clamp(vy.get() * 0.006, 8))
-  const tiltY = useTransform(() => peelY.get() + clamp(vx.get() * 0.006, 8))
+  const tiltX = useTransform(() => peelX.get() - clamp(vy.get() * 0.004, 6))
+  const tiltY = useTransform(() => peelY.get() + clamp(vx.get() * 0.004, 6))
+  // the camera keeps its distance as the photo grows, so a tilt looks the
+  // same whatever size it is (rather than turning into a big trapezoid)
+  const perspective = useTransform(() => Math.max(mv.w.get(), mv.h.get()) * 4)
   const shadowX = useTransform(shadow, (s) => s * 0.7)
+  // x and y are the centre
+  const left = useTransform(mv.w, (w) => -w / 2)
+  const top = useTransform(mv.h, (h) => -h / 2)
+  const artRadius = useTransform(mv.artRadius, px)
+
+  // a hovered photo's doodle is mid-wiggle: start from there and let it settle
+  const [wiggle, setWiggle] = useState(dir === 'in' && photo.hovered)
+  useEffect(() => {
+    if (!wiggle) return
+    const id = requestAnimationFrame(() => requestAnimationFrame(() => setWiggle(false)))
+    return () => cancelAnimationFrame(id)
+  }, [])
 
   useEffect(() => {
     const t = dir === 'in' ? OPEN : CLOSE
-    const along = (times, ease = 'easeInOut') => ({ duration: t.duration, times, ease })
+    const along = (times) => ({ duration: t.duration, times, ease: 'easeInOut' })
     const dist = Math.hypot(end.x - start.x, end.y - start.y)
     const lift = -Math.min(50, dist * 0.12)
     // peels up early when taken off, settles late when put back
-    const peak = dir === 'in' ? 0.3 : 0.6
+    const peak = dir === 'in' ? 0.22 : 0.65
 
-    const main = [
-      animate(x, end.x, t),
-      animate(y, end.y, t),
-      animate(scale, end.scale, t),
-      animate(rotate, end.rotate, t),
-    ]
+    const moves = Object.keys(end).map((k) => animate(mv[k], end[k], t))
     animate(arc, [0, lift, 0], along([0, 0.45, 1]))
     animate(peelX, [0, peel.rotateX, 0], along([0, peak, 1]))
     animate(peelY, [0, peel.rotateY, 0], along([0, peak, 1]))
-    animate(shadow, [rest.shadow, 16, 4], along([0, peak, 1]))
-    // a quick cross-fade early on: the incoming picture fades in a little
-    // ahead of the outgoing one fading out, so the pair never goes
-    // see-through, and the outgoing one is gone before it's grown much
-    const [incoming, outgoing] = dir === 'in' ? [frameOpacity, photoOpacity] : [photoOpacity, frameOpacity]
-    animate(incoming, [0, 1, 1], along([0, 0.35, 1], 'linear'))
-    animate(outgoing, [1, 1, 0, 0], along([0, 0.1, 0.45, 1], 'linear'))
+    animate(shadow, [dir === 'in' ? 8 : 4, 16, 4], along([0, peak, 1]))
 
     let cancelled = false
-    Promise.all(main).then(() => {
+    Promise.all(moves).then(() => {
       if (cancelled) return
       if (dir === 'out') playPat()
       onDone()
@@ -328,62 +324,58 @@ function Flyer({ flight, onDone }) {
     return () => {
       cancelled = true
       // StrictMode runs this twice in development: start the second run fresh
-      const values = { ...start, arc: 0, peelX: 0, peelY: 0, ...rest }
-      const mv = { x, y, scale, rotate, arc, peelX, peelY, shadow, photoOpacity, frameOpacity }
-      Object.entries(values).forEach(([k, v]) => {
+      for (const [k, v] of Object.entries(start)) {
         mv[k].stop()
         mv[k].jump(v)
-      })
+      }
+      for (const v of [arc, peelX, peelY]) {
+        v.stop()
+        v.jump(0)
+      }
+      shadow.stop()
+      shadow.jump(dir === 'in' ? 8 : 4)
     }
     // the flight is fixed for the life of this component
   }, [])
 
-  // the hinge, measured from the subject (where the flyer's origin is)
-  const hinge = `${peel.origin[0] * photo.w - photo.subject.x}px ${peel.origin[1] * photo.h - photo.subject.y}px`
-
   return (
-    <motion.div className="flyer" aria-hidden="true" style={{ x, y: top, scale, rotate }}>
+    <motion.div
+      className="flyer"
+      aria-hidden="true"
+      style={{ x: mv.x, y: arcY, rotate: mv.rotate, width: mv.w, height: mv.h, left, top }}
+    >
       <motion.div
         className="flyer__tilt"
-        style={{ rotateX: tiltX, rotateY: tiltY, transformPerspective: 900, transformOrigin: hinge }}
+        style={{ rotateX: tiltX, rotateY: tiltY, transformPerspective: perspective, transformOrigin: peel.origin }}
       >
-        {/* the photo as it was on the page */}
+        <motion.div className="flyer__shadow" style={{ x: shadowX, y: shadow, borderRadius: mv.radius }} />
         <motion.div
-          className="flyer__layer"
+          className={`flyer__sheet polaroid ${wiggle ? 'is-wiggling' : ''}`}
           style={{
-            left: -photo.subject.x,
-            top: -photo.subject.y,
-            width: photo.w,
-            height: photo.h,
-            fontSize: photo.fontSize,
-            opacity: photoOpacity,
+            fontSize: mv.fontSize,
+            borderRadius: mv.radius,
+            paddingBottom: mv.padBottom,
+            '--art-radius': artRadius,
           }}
         >
-          <motion.div className="flyer__shadow flyer__shadow--photo" style={{ x: shadowX, y: shadow }} />
-          <div className="flyer__photo polaroid">
-            <Artwork src={piece.image} alt="" tint={piece.tint} doodle={piece.doodle} label={null} />
-            <span className="polaroid__caption">{piece.title}</span>
+          <div className={`artwork ${piece.image ? '' : `artwork--placeholder tint-${piece.tint}`}`}>
+            {piece.image ? (
+              <img src={piece.image} alt="" draggable="false" />
+            ) : (
+              <>
+                <Doodle kind={piece.doodle} className="artwork__doodle" />
+                <motion.span
+                  className="flyer__label"
+                  style={{ height: mv.labelH, marginTop: mv.labelM, opacity: mv.label }}
+                >
+                  <span className="artwork__label">art coming soon</span>
+                </motion.span>
+              </>
+            )}
           </div>
-        </motion.div>
-
-        {/* the print as it is in the lightbox, shrunk to begin with so its
-            picture matches the photo's */}
-        <motion.div
-          className="flyer__layer"
-          style={{
-            left: -frame.subject.x,
-            top: -frame.subject.y,
-            width: frame.w,
-            height: frame.h,
-            transformOrigin: `${frame.subject.x}px ${frame.subject.y}px`,
-            scale: photo.subject.w / frame.subject.w,
-            opacity: frameOpacity,
-          }}
-        >
-          <motion.div className="flyer__shadow flyer__shadow--frame" style={{ x: shadowX, y: shadow }} />
-          <div className="flyer__frame lightbox__frame">
-            <Artwork src={piece.image} alt="" tint={piece.tint} doodle={piece.doodle} />
-          </div>
+          <motion.span className="polaroid__caption" style={{ height: mv.captionH, opacity: mv.caption }}>
+            {piece.title}
+          </motion.span>
         </motion.div>
       </motion.div>
     </motion.div>

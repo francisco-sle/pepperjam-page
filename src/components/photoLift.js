@@ -1,11 +1,8 @@
 // Geometry for lifting a photo off a scrapbook page and into the lightbox.
 //
-// The photo and the lightbox frame are different shapes, so the transition
-// lines them up on their *subject*: the doodle on a placeholder, otherwise
-// the picture itself. Each measurement says where that subject sits (from
-// the box's top-left corner) and how big it is.
-
-const doodleOf = (el) => el.querySelector('.artwork__doodle')
+// The lightbox shows each picture the same shape it has in the book, so the
+// photo can simply grow into the framed print: these say how big each end
+// is and what's around the picture (border, caption, label).
 
 /** Where a gallery photo sits on screen right now, or null if it isn't shown. */
 export function measurePhoto(el) {
@@ -22,10 +19,8 @@ export function measurePhoto(el) {
   // whatever the page around it is scaled by
   const outer = r.width / (own * (w * Math.abs(Math.cos(angle)) + h * Math.abs(Math.sin(angle))))
   const scale = own * outer
-  // Layout values only: the doodle has its own hover wiggle, which mustn't
-  // count. It sits in the middle of the picture (there's no label on the page).
   const art = el.querySelector('.artwork')
-  const doodle = doodleOf(el)
+  const caption = el.querySelector('.polaroid__caption')
   return {
     cx: r.left + r.width / 2,
     cy: r.top + r.height / 2,
@@ -33,11 +28,11 @@ export function measurePhoto(el) {
     h: h * scale,
     rotate: (angle * 180) / Math.PI,
     fontSize: parseFloat(style.fontSize) * scale,
-    subject: {
-      x: (el.clientLeft + art.offsetLeft + art.offsetWidth / 2) * scale,
-      y: (el.clientTop + art.offsetTop + art.offsetHeight / 2) * scale,
-      w: (doodle ? parseFloat(getComputedStyle(doodle).width) : art.offsetWidth) * scale,
-    },
+    radius: parseFloat(style.borderTopLeftRadius) * scale,
+    artRadius: parseFloat(getComputedStyle(art).borderTopLeftRadius) * scale,
+    captionH: (caption?.offsetHeight ?? 0) * scale,
+    // its doodle does a little wiggle while hovered
+    hovered: el.matches(':hover'),
     mount: el.dataset.mount,
   }
 }
@@ -57,12 +52,16 @@ export function findPhoto(index) {
 /** The lightbox frame (it never rotates). */
 export function measureFrame(el) {
   const r = el.getBoundingClientRect()
-  const s = (doodleOf(el) ?? el.querySelector('.artwork') ?? el).getBoundingClientRect()
+  const art = el.querySelector('.artwork')
+  const label = el.querySelector('.artwork__label')
   return {
     cx: r.left + r.width / 2,
     cy: r.top + r.height / 2,
     w: r.width,
     h: r.height,
-    subject: { x: s.left + s.width / 2 - r.left, y: s.top + s.height / 2 - r.top, w: s.width },
+    radius: parseFloat(getComputedStyle(el).borderTopLeftRadius),
+    artRadius: parseFloat(getComputedStyle(art).borderTopLeftRadius),
+    // placeholders say "art coming soon" under the doodle
+    label: label && { h: label.offsetHeight, m: parseFloat(getComputedStyle(label).marginTop) },
   }
 }

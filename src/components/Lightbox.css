@@ -79,8 +79,16 @@
   position: relative;
 }
 
+.lightbox__viewport {
+  /* tallest the picture gets; a tall piece is narrower instead */
+  --frame-max-h: min(52dvh, 440px);
+}
+
+/* The picture is the same shape as in the book (--aspect, set per piece),
+   so the card grows to fit it rather than cropping or squashing it. */
 .lightbox__frame {
-  aspect-ratio: 4 / 3;
+  width: min(100%, calc(var(--frame-max-h) * var(--aspect, 4 / 3) + 21px)); /* + padding and border */
+  margin-inline: auto;
   padding: 8px;
   background: #fffdf9;
   border: var(--line);
@@ -89,7 +97,20 @@
 }
 
 .lightbox__frame .artwork {
+  height: auto;
+  aspect-ratio: var(--aspect, 4 / 3);
   border-radius: 10px;
+}
+
+/* the label sits under the doodle with a margin (not the grid gap), so the
+   flying photo can grow it in from nothing */
+.lightbox__frame .artwork,
+.flyer .artwork {
+  gap: 0;
+}
+
+.lightbox__frame .artwork__label {
+  margin-top: 0.6em;
 }
 
 .lightbox .chevron {
@@ -215,54 +236,47 @@
   --rust: #ee9886;
 }
 
-/* The photo while it's travelling between the page and the frame: a copy
-   of the photo and a copy of the frame, stacked on the spot where their
-   pictures line up (the flyer's origin). Each has its flat shadow as a
-   separate layer, so it can drop away without repainting a box-shadow. */
+/* The photo while it's travelling between the page and the frame: one
+   polaroid that grows into the framed print. Its flat shadow is a separate
+   layer, so it can drop away without repainting a box-shadow. */
 .flyer {
   position: fixed;
-  top: 0;
-  left: 0;
   z-index: 51;
-  width: 0;
-  height: 0;
   pointer-events: none;
 }
 
 .flyer__tilt,
-.flyer__layer {
-  position: absolute;
-  top: 0;
-  left: 0;
-}
-
 .flyer__shadow {
   position: absolute;
   inset: 0;
+}
+
+.flyer__shadow {
   background: rgb(70 40 20 / 0.15);
 }
 
-.flyer__shadow--photo {
-  border-radius: var(--radius-sm);
-}
-
-.flyer__shadow--frame {
-  border-radius: var(--radius);
-}
-
-.flyer__photo,
-.flyer__frame {
-  position: relative;
+.flyer__sheet {
   width: 100%;
   height: 100%;
   box-shadow: none;
 }
 
-.flyer__photo .artwork {
+.flyer__sheet .artwork {
   flex: 1;
   min-height: 0;
+  border-radius: var(--art-radius);
 }
 
-.flyer__frame {
-  font-size: 16px;
+.flyer__sheet .polaroid__caption {
+  flex: none;
+}
+
+.flyer__label {
+  display: block;
+  overflow: hidden;
+}
+
+/* a hovered photo's doodle is mid-wiggle when it's picked up */
+.flyer__sheet.is-wiggling .artwork__doodle {
+  transform: scale(1.12) rotate(-6deg);
 }

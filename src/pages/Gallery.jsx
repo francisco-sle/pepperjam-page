@@ -41,6 +41,26 @@ const NOTES = [
 
 export const gallerySpreadCount = Math.ceil(gallery.length / PIECES_PER_SPREAD)
 
+/**
+ * The shape (width / height) of piece `index`'s picture in the book, so the
+ * lightbox can show it the same shape. Every spread uses the same slots, so
+ * this works for pieces on other spreads too: it measures a gallery page
+ * that's showing, and the border and caption around a photo on it.
+ */
+export function artAspect(index) {
+  const pos = index % PIECES_PER_SPREAD
+  const slot = pos < LAYOUT.left.length ? LAYOUT.left[pos] : LAYOUT.right[pos - LAYOUT.left.length]
+  const shown = (el) => el.getClientRects().length > 0
+  const page = [...document.querySelectorAll('.gallery-page')].find(shown)
+  // (not the one that's off the page: its empty spot has a thinner border)
+  const photo = page && [...page.querySelectorAll('.gallery-item:not(.is-lifted)')].find(shown)
+  const art = photo?.querySelector('.artwork')
+  if (!art) return null
+  const aroundW = photo.offsetWidth - art.offsetWidth
+  const aroundH = photo.offsetHeight - art.offsetHeight
+  return ((slot.width / 100) * page.offsetWidth - aroundW) / ((slot.height / 100) * page.offsetHeight - aroundH)
+}
+
 export default function GalleryPage({ spread, side }) {
   const { openArt, liftedArt } = useSite()
   const start = spread * PIECES_PER_SPREAD + (side === 'right' ? LAYOUT.left.length : 0)

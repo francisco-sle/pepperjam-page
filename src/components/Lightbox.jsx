@@ -99,7 +99,10 @@ export default function Lightbox({ index, from, onClose, onChange, favorites, on
           <motion.div
             className="lightbox"
             initial={{ opacity: 0 }}
-            animate={{ opacity: leaving ? 0 : 1 }}
+            // pointer events come back explicitly: reopening while the last
+            // close is still fading out reverses that exit, which would
+            // otherwise leave the backdrop click-through
+            animate={{ opacity: leaving ? 0 : 1, pointerEvents: 'auto' }}
             exit={{ opacity: 0, pointerEvents: 'none', transition: { duration: 0.2 } }}
             transition={{ duration: leaving ? 0.3 : 0.25 }}
             onClick={close}

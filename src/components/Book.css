@@ -356,6 +356,30 @@
   pointer-events: none;
 }
 
+/* The artist's seal: the cat in the jar, stamped in the outer bottom corner. */
+.page__seal {
+  position: absolute;
+  z-index: 1; /* printed on the sheet itself, under the page content */
+  bottom: 1.6cqw;
+  width: clamp(48px, 14cqw, 90px);
+  height: auto;
+  opacity: 0.45;
+  mix-blend-mode: multiply;
+  rotate: -8deg;
+  pointer-events: none;
+  user-select: none;
+}
+
+.page--left .page__seal {
+  left: 3cqw;
+}
+
+.page--right .page__seal,
+.page--single .page__seal {
+  right: 3cqw;
+  rotate: 8deg;
+}
+
 /* ---------- Stitched binding ---------- */
 
 .pf-rings {
@@ -442,6 +466,7 @@
    which is blank paper (see turnLayers.js). */
 .pf-page.pf-page-back .page__content,
 .pf-page.pf-page-back .page__holes,
+.pf-page.pf-page-back .page__seal,
 .pf-page.pf-page-back .page__num {
   visibility: hidden;
 }

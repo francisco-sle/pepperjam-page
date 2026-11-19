@@ -93,8 +93,8 @@ const CLIP = 'M15 18 V44 A5 5 0 0 1 5 44 V10 A7 7 0 0 1 19 10 V40 A2 2 0 0 1 15 
  * What holds a photo to the page.
  * kind: 'tape' | 'corners' | 'pin' | 'clip'
  */
-export function Mount({ kind = 'tape', color = 'var(--peach)' }) {
-  if (kind === 'tape') return <span className="tape" style={{ '--tape': color }} aria-hidden="true" />
+export function Mount({ kind = 'tape', color = 'var(--peach)', className = '' }) {
+  if (kind === 'tape') return <span className={`tape ${className}`} style={{ '--tape': color }} aria-hidden="true"><i /></span>
   if (kind === 'corners') {
     return (
       <span className="photo-corners" style={{ '--corner': color }} aria-hidden="true">

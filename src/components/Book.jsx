@@ -8,6 +8,8 @@ import { playFlip } from '../hooks/sound'
 import './Book.css'
 
 const FLIP_MS = 850 // a normal page turn
+// how far each sheet in a pile lies from the one above it (also used by the tabs)
+export const SPREAD_STEP = { x: 3.5, y: 4.5 }
 const RIFFLE_MS = 420 // each turn while jumping several spreads at once
 const RELEASE_MS = 380 // a let-go drag settling onto one pile or the other
 
@@ -63,7 +65,7 @@ export default function Book({ pages, page, single, onNavigate, children }) {
 
   // Where sheets lie. `depth` is how far a sheet is from the top of a full
   // pile; deeper sheets lie lower and further out (dir: -1 left, 1 right).
-  const STEP = single ? { x: 1.9, y: 2.7 } : { x: 3.5, y: 4.5 }
+  const STEP = single ? { x: 1.9, y: 2.7 } : SPREAD_STEP
   const mid = lastSpread / 2
   const placeAt = (depth, dir) => ({ x: dir * (depth - mid) * STEP.x, y: (depth - mid) * STEP.y })
   // page i: right pages count down from the first spread, left pages up to the last
@@ -366,7 +368,7 @@ function Stack({ side, sheets, placeAt }) {
             key={depth}
             className="stack__sheet"
             style={{
-              zIndex: 100 - depth,
+              zIndex: 200 - 2 * depth, // even, so a tab can sit between two sheets (Tabs.jsx)
               translate: `${x}px ${y}px`,
               // sheets further down the pile sit in a little more shadow
               backgroundColor: `color-mix(in srgb, var(--sheet), var(--ink) ${depth * 3}%)`,

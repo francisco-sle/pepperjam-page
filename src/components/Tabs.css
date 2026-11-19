@@ -1,7 +1,7 @@
 .tabs {
   position: absolute;
   inset: 0;
-  z-index: -1;
+  /* no z-index: each tab has its own, slotted between two sheets of the piles */
   pointer-events: none;
 }
 
@@ -37,14 +37,17 @@
 }
 
 .tab--right {
-  left: calc(100% + 6px);
+  /* the inner end stays hidden under the sheets even when the tab slides out */
+  left: calc(100% - 44px);
+  width: 196px;
   justify-content: flex-end;
   border-radius: 0 16px 16px 0;
   padding-left: 26px;
 }
 
 .tab--left {
-  right: calc(100% + 6px);
+  right: calc(100% - 44px);
+  width: 196px;
   flex-direction: row-reverse;
   justify-content: flex-end;
   border-radius: 16px 0 0 16px;

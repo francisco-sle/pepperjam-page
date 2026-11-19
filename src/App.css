@@ -49,7 +49,7 @@
 
 .pager {
   position: absolute;
-  z-index: 12;
+  z-index: 400;
   left: 50%;
   bottom: -26px;
   translate: -50% 50%;

@@ -114,7 +114,7 @@ export default function App() {
               transition={{ type: 'spring', stiffness: 110, damping: 16 }}
             >
               <Book key={single ? 'single' : 'spread'} pages={pages} page={view} single={single} onNavigate={navigate}>
-                <Tabs sections={sections} current={sectionIndex} onSelect={goToSection} single={single} />
+                <Tabs sections={sections} current={sectionIndex} spread={view / 2} onSelect={goToSection} single={single} />
                 <nav className="pager" aria-label={t('pager.label')}>
                   <button className="pager__btn" onClick={() => navigate(view - step)} disabled={viewIndex === 0} aria-label={t('pager.prev')}>
                     <Arrow dir={-1} />

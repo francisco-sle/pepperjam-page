@@ -120,13 +120,14 @@
 .book__corner--bl { bottom: var(--edge); left: var(--edge); scale: 1 -1; }
 .book__corner--br { bottom: var(--edge); right: var(--edge); scale: -1 -1; }
 
-/* Ribbon bookmark hanging out of the bottom */
+/* Ribbon bookmark hanging out of the bottom, from between the last page and
+   the back cover: over the cover, under every sheet */
 .book__ribbon {
   position: absolute;
-  z-index: -1;
+  z-index: 1;
   right: 18%;
   bottom: -78px;
-  width: 24px;
+  width: 34px;
   height: 92px;
   background: var(--rust);
   border: var(--line);
@@ -145,7 +146,8 @@
 
 .stack {
   position: absolute;
-  z-index: 0; /* keep the sheets' own z-indexes in here, under the pages */
+  /* no z-index: the sheets (z 200 - 2 * depth) share the book's stacking
+     context with the tabs, which sit between two sheets (an odd z) */
   top: 0;
   bottom: 0;
   pointer-events: none;
@@ -196,11 +198,13 @@
   width: 36px;
   translate: -50% 0;
   background: color-mix(in srgb, var(--paper-2), var(--ink) 22%);
+  z-index: 250; /* over the sheet piles */
   pointer-events: none;
 }
 
 .book__pages {
   position: absolute;
+  z-index: 300; /* over the sheet piles and the tabs that slide out from them */
   inset: 0;
   user-select: none;
   -webkit-user-select: none;

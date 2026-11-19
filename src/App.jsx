@@ -1,11 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { MotionConfig, motion } from 'motion/react'
-import { sections } from './content/site'
+import { site, sections } from './content/site'
 import { pages } from './pages'
 import { SiteContext } from './SiteContext'
 import Book from './components/Book'
 import Tabs from './components/Tabs'
-import SignBoard from './components/SignBoard'
 import SideMenu from './components/SideMenu'
 import Scenery from './components/Scenery'
 import Lightbox from './components/Lightbox'
@@ -104,7 +103,7 @@ export default function App() {
         <Scenery />
         <div className="app">
           <SideMenu soundOn={soundOn} onToggleSound={toggleSound} />
-          <SignBoard section={section} />
+          <h1 className="sr-only">{site.name}</h1>
 
           <main className="stage">
             <motion.div

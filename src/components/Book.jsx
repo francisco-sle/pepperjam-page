@@ -42,7 +42,7 @@ export default function Book({ pages, page, single, onNavigate, children }) {
       return el
     }),
   )
-  // The spiral lives inside PageFlip's own layer, between the resting pages
+  // The stitching lives inside PageFlip's own layer, between the resting pages
   // (z 2–4) and the turning page (z 6), so a lifted page passes over the rings.
   const [ringHost] = useState(() => {
     const el = document.createElement('div')
@@ -400,15 +400,16 @@ function CoverCorner({ at }) {
   )
 }
 
+// A cord laced through a pair of holes: one bar across the fold per "ring".
 function Spiral({ rings }) {
   return (
     <div className="spiral" aria-hidden="true">
       {Array.from({ length: rings }, (_, i) => (
         <svg key={i} className="spiral__ring" viewBox="0 0 48 20" overflow="visible">
-          <circle cx="8" cy="12" r="3.3" fill="var(--ink)" opacity="0.75" />
-          <circle cx="40" cy="12" r="3.3" fill="var(--ink)" opacity="0.75" />
-          <path d="M8 12 C8 0 40 0 40 12" fill="none" stroke="var(--ink)" strokeWidth="8.5" strokeLinecap="round" />
-          <path d="M8 12 C8 0 40 0 40 12" fill="none" stroke="#f6eadb" strokeWidth="4.5" strokeLinecap="round" />
+          <path d="M8 13.4 H40" stroke="rgb(60 30 14 / 0.25)" strokeWidth="4.6" strokeLinecap="round" />
+          <path d="M8 12 H40" stroke="var(--ink)" strokeWidth="4.6" strokeLinecap="round" />
+          <circle cx="8" cy="12" r="3.1" fill="var(--ink)" />
+          <circle cx="40" cy="12" r="3.1" fill="var(--ink)" />
         </svg>
       ))}
     </div>

@@ -348,6 +348,7 @@ export function PageFrame({ side, number, holes, holesY = 0, children }) {
         </div>
       )}
       <div className="page__content">{children}</div>
+      <img className="page__seal" src="/art/pepperjam-seal.png" alt="" aria-hidden="true" draggable="false" />
       {number && <span className="page__num hand">~ {number} ~</span>}
     </div>
   )

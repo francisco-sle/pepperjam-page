@@ -2,7 +2,7 @@
 // under "about"); this file only has what's the same in every language.
 export const about = {
   // Put a real photo/self-portrait in /public/art and set e.g. image: '/art/me.jpg'
-  image: null,
+  image: '/art/pepperjam-jar.png',
   name: 'Pepperjam',
   // Stardew-style skill hearts (out of 5). Each id needs a name in about.skills.
   skills: [

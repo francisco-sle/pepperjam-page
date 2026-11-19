@@ -14,8 +14,8 @@ export function AboutPortrait() {
         <Doodle kind="jar" size={30} /> {t('sections.about')}
       </h2>
       <figure className="polaroid polaroid--big">
-        <Mount kind="corners" color="var(--matcha)" />
-        <Mount kind="tape" color="var(--cocoa)" />
+        <Mount kind="tape" color="var(--mustard)" className="tape--dots" />
+        <Mount kind="tape" color="var(--matcha)" className="tape--cross" />
         <Artwork src={about.image} alt={t('about.portraitAlt')} tint="peach" doodle="jar" label={t('about.portraitLabel')} />
         <figcaption>{t('about.portraitCaption')}</figcaption>
       </figure>
@@ -38,16 +38,21 @@ export function AboutBio() {
         seed={7}
         className="dialogue"
         label={
-          <div className="dialogue__head">
-            <span className="name-plate">{about.name}</span>
-            <span className="dialogue__role">{t('about.role')}</span>
-          </div>
+          <>
+            <div className="dialogue__head">
+              <span className="name-plate">{about.name}</span>
+              <span className="dialogue__role">{t('about.role')}</span>
+            </div>
+            <Mount kind="tape" className="tape--grid" />
+          </>
         }
       >
         <h3 className="dialogue__greeting">{t('about.greeting')}</h3>
-        {t('about.bio').map((p, i) => (
-          <p key={i} className="dialogue__text">{p}</p>
-        ))}
+        <div className="bio-card">
+          {t('about.bio').map((p, i) => (
+            <p key={i} className="dialogue__text">{p}</p>
+          ))}
+        </div>
 
         <ul className="skills" aria-label={t('about.skillsLabel')}>
           {about.skills.map((s) => (

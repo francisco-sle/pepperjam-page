@@ -113,6 +113,19 @@
   color: var(--rust-dark);
 }
 
+/* rounded white cards on the graph paper, like the sketch */
+.bio-card,
+.skills {
+  background: #fffdf9;
+  border: 2px solid var(--ink);
+  border-radius: 28px;
+}
+
+.bio-card {
+  padding: 2.4em 1.3em 1.7em;
+  margin-bottom: 0.9em;
+}
+
 .dialogue__text {
   line-height: 1.45;
   margin-bottom: 0.55em;
@@ -121,16 +134,17 @@
 .skills {
   list-style: none;
   margin: 0;
-  padding: 0;
+  padding: 1.3em 1.3em;
+  width: fit-content;
   display: grid;
-  gap: 0.25em;
+  grid-template-columns: auto auto;
+  column-gap: 1.5em;
+  row-gap: 0.25em;
+  align-items: center;
 }
 
 .skills li {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.5em;
+  display: contents;
   font-weight: 500;
 }
 
@@ -188,4 +202,108 @@
   --rust: var(--paper);
   width: 1.3em;
   height: 1.3em;
+}
+
+/* Logo on soft gingham, like the sketch */
+.polaroid--big .artwork {
+  background-color: var(--peach-light);
+  background-image:
+    linear-gradient(90deg, color-mix(in srgb, var(--peach) 30%, transparent) 50%, transparent 50%),
+    linear-gradient(color-mix(in srgb, var(--peach) 30%, transparent) 50%, transparent 50%);
+  background-size: 22px 22px;
+}
+
+.polaroid--big .artwork img {
+  object-fit: contain;
+}
+
+/* Two opaque washi strips, as in the sketch: polka-dot on top, crosshatch bottom-left.
+   The strip itself carries the drop shadow; the inner <i> is the torn, clipped paper. */
+.polaroid--big .tape,
+.dialogue > .tape {
+  width: 32%;
+  max-width: none;
+  height: auto;
+  aspect-ratio: 4.6 / 1;
+  background: none;
+  clip-path: none;
+  filter: drop-shadow(1px 2px 1px rgb(107 74 54 / 0.35));
+}
+
+.polaroid--big .tape i,
+.dialogue > .tape i {
+  position: absolute;
+  inset: 0;
+}
+
+/* straddles the top edge, right of centre */
+.tape--dots {
+  top: 0;
+  left: 54%;
+  translate: 0 -50%;
+  rotate: 1deg;
+}
+
+/* pale yellow with staggered blue polka dots */
+.tape--dots i {
+  /* straight left side, small saw-tooth nicks low on the right */
+  clip-path: polygon(0 0, 100% 0, 100% 32%, 98% 42%, 100% 52%, 98% 64%, 100% 74%, 98% 88%, 100% 100%, 0 100%);
+  background:
+    radial-gradient(circle, #8fd8e0 2px, transparent 2.5px) 0 0 / 14px 18px,
+    radial-gradient(circle, #8fd8e0 2px, transparent 2.5px) 7px 9px / 14px 18px,
+    #fafbc6;
+}
+
+/* straddles the bottom edge, bottom-left */
+.tape--cross {
+  top: auto;
+  bottom: 0;
+  left: 11%;
+  translate: 0 50%;
+  rotate: 2deg;
+}
+
+/* teal diamond lattice */
+.tape--cross i {
+  /* left edge cut at a slant with a couple of nicks, right side nearly straight */
+  clip-path: polygon(0 0, 100% 0, 100% 30%, 99% 38%, 100% 100%, 4.5% 100%, 2.5% 86%, 4% 74%, 1% 60%, 2.5% 48%, 0 36%);
+  background:
+    linear-gradient(to top right, transparent calc(50% - 1.5px), #a6dfd7 calc(50% - 1.5px) calc(50% + 1.5px), transparent calc(50% + 1.5px)) 0 0 / 16% 74%,
+    linear-gradient(to bottom right, transparent calc(50% - 2px), #b3e5de calc(50% - 2px) calc(50% + 2px), transparent calc(50% + 2px)) 0 0 / 16% 74%,
+    #8dd0c8;
+}
+
+/* Instax-style frame: roomy sides, deep bottom ledge */
+.polaroid--big {
+  padding: 1.5em 1.5em 0;
+}
+
+.polaroid--big figcaption {
+  flex: none;
+  min-height: 5.5em;
+  display: grid;
+  place-items: center;
+  padding: 0.5em 0;
+  font-family: var(--font-hand);
+  font-size: 1.15em;
+  color: var(--ink-soft);
+}
+
+/* mint grid tape holding the sheet down, bottom-right */
+.tape--grid {
+  top: auto;
+  bottom: 0;
+  left: 66%;
+  translate: 0 22%;
+  rotate: 2.5deg;
+}
+
+.tape--grid i {
+  clip-path: polygon(0 0, 100% 0, 99% 30%, 100% 60%, 98.5% 100%, 0 100%, 1.5% 70%, 0 40%, 1% 15%);
+  background:
+    /* bright vertical line every 2 squares, faint one between, thin horizontals */
+    linear-gradient(90deg, #d2f6f0 1.5px, transparent 1.5px) 0 0 / 13.33% 100%,
+    linear-gradient(90deg, #a9e3da 0.75px, transparent 0.75px) 0 0 / 6.67% 100%,
+    linear-gradient(#a9e3da 1.5px, transparent 1.5px) 0 0 / 100% 31%,
+    #8dd9cc;
 }

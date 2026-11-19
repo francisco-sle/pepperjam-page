@@ -1,5 +1,7 @@
 import { AnimatePresence, motion } from 'motion/react'
 import Doodle from './Doodle'
+import { SPREAD_STEP } from './Book'
+import { pages } from '../pages'
 import { useI18n } from '../i18n'
 import './Tabs.css'
 
@@ -8,7 +10,7 @@ import './Tabs.css'
  * Like a real tabbed notebook: tabs of sections you've already flipped past
  * move to the left edge, the current and upcoming ones stay on the right.
  */
-export default function Tabs({ sections, current, onSelect, single }) {
+export default function Tabs({ sections, current, spread, onSelect, single }) {
   const { t } = useI18n()
   const label = (s) => t(`sections.${s.id}`)
   if (single) {
@@ -34,6 +36,18 @@ export default function Tabs({ sections, current, onSelect, single }) {
     )
   }
 
+  // A divider is slotted into the pile at the sheet where its section starts:
+  // above that sheet, under the ones on top of it. A tab for the section being
+  // shown sticks out of the visible page's sheet. (Mirrors Book's placeAt.)
+  const lastSpread = pages.length / 2 - 1
+  const slot = (id, side) => {
+    const start = Math.floor(pages.findIndex((p) => p.section === id) / 2)
+    const dir = side === 'left' ? -1 : 1
+    const depth = side === 'left' ? lastSpread - start : Math.max(start, spread)
+    const d = depth - lastSpread / 2
+    return { zIndex: 201 - 2 * depth, translate: `${dir * d * SPREAD_STEP.x}px ${d * SPREAD_STEP.y}px` }
+  }
+
   return (
     <div className="tabs" role="tablist" aria-label={t('sections.tabs')}>
       <AnimatePresence initial={true}>
@@ -47,7 +61,7 @@ export default function Tabs({ sections, current, onSelect, single }) {
               role="tab"
               aria-selected={active}
               className={`tab tab--${side} tab--${s.color} ${active ? 'is-active' : ''}`}
-              style={{ top: `calc(9% + ${i} * 68px)` }}
+              style={{ top: `calc(9% + ${i} * 68px)`, ...slot(s.id, side) }}
               onClick={() => onSelect(i)}
               initial={{ x: -70 * out, opacity: 0 }}
               animate={{

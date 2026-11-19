@@ -40,64 +40,42 @@
   inset: -8px -14px -20px -28px;
 }
 
-/* The spine: a strip of darker leather laid over the boards, standing a
-   little proud of them at the head and tail, with raised bands across it
-   (seen on phones, where it runs down the left) and gold tooling. */
+/* The spine: the middle of the boards, where the leather is a shade darker
+   and folds into a joint (a pressed groove with a lit lip) along each side.
+   Flush with the boards, so the cover reads as one piece wrapped round a book. */
 .book__spine {
-  --band: linear-gradient(var(--ink) 0 1.5px, rgb(255 236 210 / 0.4) 1.5px 3.5px, transparent 3.5px 6px, rgb(80 36 12 / 0.35) 6px 7.5px, var(--ink) 7.5px 9px);
   position: absolute;
   z-index: 1;
-  top: -7px;
-  bottom: -7px;
+  top: 0;
+  bottom: 0;
   left: 50%;
   width: clamp(70px, 11cqw, 150px);
   translate: -50% 0;
   background:
-    var(--band) 0 22% / 100% 9px no-repeat,
-    var(--band) 0 41% / 100% 9px no-repeat,
-    var(--band) 0 59% / 100% 9px no-repeat,
-    var(--band) 0 78% / 100% 9px no-repeat,
+    linear-gradient(to right, rgb(70 30 10 / 0.3), transparent 14%, transparent 86%, rgb(70 30 10 / 0.3)),
     var(--leather) 30px 0 / 260px 260px,
-    color-mix(in srgb, var(--caramel-dark), var(--ink) 24%);
-  border: var(--line);
-  border-radius: 9px / 6px;
+    color-mix(in srgb, var(--caramel-dark), var(--ink) 18%);
   box-shadow:
-    inset 0 0 10px rgb(70 30 10 / 0.4),
-    inset 4px 0 0 rgb(255 236 210 / 0.12),
-    3px 0 0 rgb(107 74 54 / 0.2),
-    -3px 0 0 rgb(107 74 54 / 0.2);
+    inset 0 0 10px rgb(70 30 10 / 0.35),
+    -1.5px 0 0 rgb(70 30 10 / 0.6),
+    1.5px 0 0 rgb(70 30 10 / 0.6),
+    -3.5px 0 0 rgb(255 236 210 / 0.3),
+    3.5px 0 0 rgb(255 236 210 / 0.3);
 }
 
-/* gold fillets: a double line framing the spine */
-.book__spine::before,
-.book__spine::after {
+/* the cover's tooled groove carries on across the spine */
+.book__spine::before {
   content: '';
   position: absolute;
-  border: 1.5px solid var(--gold);
-  border-radius: 4px;
-}
-
-.book__spine::before {
-  inset: 5px 5px;
-}
-
-.book__spine::after {
-  inset: 9px 9px;
-  border-width: 1px;
-  opacity: 0.75;
+  inset: 5px -1px 9px;
+  border: solid rgb(40 16 4 / 0.55);
+  border-width: 1.5px 0;
 }
 
 .book--single .book__spine {
-  top: -5px;
-  bottom: -5px;
-  left: -6px;
   width: 32px;
+  left: 0;
   translate: none;
-  border-radius: 12px 5px 5px 12px;
-}
-
-.book--single .book__spine::after {
-  display: none;
 }
 
 /* the corners on the spine side have no guards */
@@ -295,8 +273,8 @@
 /* Punched holes for the spiral, lined up with the rings in .spiral:
    10/11 rings spread over 95% of the height, the wire enters 60% down a ring. */
 .page__holes {
-  --ring-h: 19.17px; /* 46px ring x 20/48 */
-  --hole-x: 15.3px; /* from the spine */
+  --ring-h: 30px; /* 72px ring x 20/48 */
+  --hole-x: 24px; /* from the spine */
   position: absolute;
   /* measured from the page's outer edge, like the spiral is from the book's */
   inset: -2.5px;
@@ -313,15 +291,15 @@
 }
 
 .page--single .page__holes {
-  --ring-h: 15px; /* 36px ring */
-  --hole-x: 14.6px;
+  --ring-h: 18.3px; /* 44px ring */
+  --hole-x: 21.3px;
 }
 
 .page__hole {
   position: absolute;
   top: calc(2.5% + (95% - var(--ring-h)) * var(--i) / (var(--rings) - 1) + var(--ring-h) * 0.6);
-  width: 10px;
-  height: 10px;
+  width: 13px;
+  height: 13px;
   translate: -50% -50%;
   border-radius: 50%;
   background: #b98a63;
@@ -362,7 +340,7 @@
 }
 
 .page--single .page__content {
-  padding-left: 11cqw;
+  padding-left: 14cqw;
   padding-bottom: 13cqw;
   font-size: clamp(13px, 4cqw, 17px);
 }
@@ -378,7 +356,7 @@
   pointer-events: none;
 }
 
-/* ---------- Spiral binding ---------- */
+/* ---------- Stitched binding ---------- */
 
 .pf-rings {
   position: absolute;
@@ -405,12 +383,12 @@
 
 .spiral__ring {
   display: block;
-  width: 46px;
+  width: 72px;
   height: auto;
 }
 
 .book--single .spiral__ring {
-  width: 36px;
+  width: 44px;
 }
 
 /* Single page: the previous page swings in from the left, so clip it at the
@@ -442,6 +420,13 @@
   translate:
     calc(var(--turn-x0) + (var(--turn-x1) - var(--turn-x0)) * var(--turn))
     calc(var(--turn-y0) + (var(--turn-y1) - var(--turn-y0)) * var(--turn));
+}
+
+/* The punched holes stay level with the cord, which doesn't ride up and down
+   the piles: undo the turning sheet's own vertical travel (Book.jsx sets the
+   resting pages' undo inline). */
+.pf-host .pf-page.is-turning .page__holes {
+  translate: 0 calc(-1 * (var(--turn-y0) + (var(--turn-y1) - var(--turn-y0)) * var(--turn))) !important;
 }
 
 /* The shadow the turning sheet casts, also cut to the page below it by

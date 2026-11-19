@@ -14,11 +14,16 @@ const SEASONS = [
   { id: 'fall', icon: 'leaf' },
 ]
 
+// ?season=winter|spring|summer|fall overrides the real date, for testing. Works as
+// /?season=winter#about or /#about?season=winter; read once at load because App
+// rewrites the hash right after.
+const FORCED_SEASON = new URLSearchParams(window.location.search || window.location.hash.split('?')[1]).get('season')
+
 // Today's real date, written the way a farming game would show it ("Thu. 15", "Jue. 15").
 function useFarmDate() {
   const { t, formatDate } = useI18n()
   const now = useMemo(() => new Date(), [])
-  const season = SEASONS[Math.floor(((now.getMonth() + 1) % 12) / 3)]
+  const season = SEASONS.find((s) => s.id === FORCED_SEASON) ?? SEASONS[Math.floor(((now.getMonth() + 1) % 12) / 3)]
   const weekday = formatDate(now, { weekday: 'short' }).replace(/\.$/, '')
   return {
     weekday: weekday.charAt(0).toUpperCase() + weekday.slice(1),

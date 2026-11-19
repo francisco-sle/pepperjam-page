@@ -15,7 +15,7 @@ import { useI18n } from './i18n'
 import './App.css'
 
 const firstPageOf = (sectionId) => Math.max(0, pages.findIndex((p) => p.section === sectionId))
-const pageFromHash = () => firstPageOf(window.location.hash.replace('#', '') || sections[0].id)
+const pageFromHash = () => firstPageOf(window.location.hash.replace('#', '').split('?')[0] || sections[0].id)
 
 export default function App() {
   const single = useMediaQuery('(max-width: 820px)')
